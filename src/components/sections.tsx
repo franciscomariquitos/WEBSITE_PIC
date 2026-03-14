@@ -140,7 +140,7 @@ export function HeroSection() {
         </motion.h1>
 
         <motion.div style={styles.heroVestRow} variants={fadeUp}>
-          <span style={styles.heroVestText}>VEST</span>
+          <span style={styles.heroVestText}>Vest</span>
 
           <img
             src={vesticon}
