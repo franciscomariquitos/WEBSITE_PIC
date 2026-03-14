@@ -7,6 +7,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
+
+
 export const colors = {
   bg: "#020326",
   bg2: "#050816",
@@ -23,10 +25,9 @@ export const sectionIds = {
   About: "about",
   Solution: "solution",
   Partners: "partners",
-  Updates: "updates",
+  Blog: "updates",
   Tracker: "tracker",
   Team: "team",
-  Roadmap: "roadmap",
   Contact: "contact",
 };
 
@@ -44,7 +45,7 @@ export const siteData = {
     email: "team@navisense.example",
     acknowledgements: "Instituto Superior Técnico · Student Innovation Project",
   },
-  nav: ["About", "Solution", "Partners", "Updates", "Tracker", "Team", "Roadmap", "Contact"],
+  nav: ["About", "Solution", "Partners", "Blog", "Tracker", "Team", "Contact"],
   about: {
     problem:
       "People with visual impairments and reduced mobility face persistent navigation challenges in complex environments, where limited environmental feedback can increase the risk of collisions, disorientation, and reduced autonomy.",
@@ -117,12 +118,53 @@ export const siteData = {
     { phase: "Phase 04", title: "Showcase", period: "May–June", state: "upcoming", desc: "Poster, demonstration video, final validation, and public presentation." },
   ],
   team: [
-    { name: "Francisco Mariquitos", role: "4G Integration, Public Relations and Data Transmission", initials: "FM" },
-    { name: "Raquel Barroso", role: "Vest Design, Sensor Choice and Sensor Position", initials: "RB" },
-    { name: "Daniel Khom'yak", role: "Website Design, Dashboard Design and Dashboard Elements", initials: "DK" },
-    { name: "David Reimer", role: "Demonstration Video, Data Transmission and Data Acquisition", initials: "DR" },
-    { name: "Tiago Pinto", role: "Pitch Deck, Vest Design and Poster Design", initials: "TP" },
-    { name: "Frederico Pinto", role: "Dashboard Programming, Dashboard Design and Dashboard Elements", initials: "FP" },
-    { name: "Prof. Francisco Alegria", role: "Mentor", initials: "FA" },
-  ],
+  {
+    name: "Francisco Mariquitos",
+    role: "4G Integration, Public Relations and Data Transmission",
+    initials: "FM",
+    cv: "#",
+    email: "francisco@example.com",
+    linkedin: "#",
+  },
+  {
+    name: "Raquel Barroso",
+    role: "Vest Design, Sensor Choice and Sensor Position",
+    initials: "RB",
+    cv: "#",
+    email: "raquel@example.com",
+    linkedin: "#",
+  },
+  {
+    name: "Daniel Khom'yak",
+    role: "Website Design, Dashboard Design and Dashboard Elements",
+    initials: "DK",
+    cv: "#",
+    email: "daniel@example.com",
+    linkedin: "#",
+  },
+  {
+    name: "David Reimer",
+    role: "Demonstration Video, Data Transmission and Data Acquisition",
+    initials: "DR",
+    cv: "#",
+    email: "david@example.com",
+    linkedin: "#",
+  },
+  {
+    name: "Tiago Pinto",
+    role: "Pitch Deck, Vest Design and Poster Design",
+    initials: "TP",
+    cv: "#",
+    email: "tiago@example.com",
+    linkedin: "#",
+  },
+  {
+    name: "Frederico Pinto",
+    role: "Dashboard Programming, Dashboard Design and Dashboard Elements",
+    initials: "FP",
+    cv: "#",
+    email: "frederico@example.com",
+    linkedin: "#",
+  },
+],
 };

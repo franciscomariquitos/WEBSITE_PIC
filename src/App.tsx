@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { SplashIntro } from "./components/SplashIntro";
 import { styles } from "./styles";
 import {
   AboutSection,
@@ -14,24 +15,40 @@ import {
 } from "./components/sections";
 
 export default function App() {
+  const [introDone, setIntroDone] = useState(false);
+
   return (
-    <div style={styles.page}>
-    <div style={styles.backgroundLayerA} />
-    <div style={styles.backgroundGlowCenter} />
+    <>
+      {!introDone && <SplashIntro onFinish={() => setIntroDone(true)} />}
 
-      <Header />
+      <div
+        style={{
+          ...styles.page,
+          opacity: introDone ? 1 : 0.999,
+          transition: "opacity 0.55s ease",
+          pointerEvents: introDone ? "auto" : "none",
+        }}
+      >
+        <div style={styles.backgroundLayerA} />
+        <div style={styles.backgroundLayerB} />
+        <div style={styles.backgroundGlowLeft} />
+        <div style={styles.backgroundGlowCenter} />
+        <div style={styles.backgroundGlowRight} />
 
-      <main style={styles.main}>
-        <HeroSection />
-        <AboutSection />
-        <SolutionSection />
-        <PartnersSection />
-        <UpdatesSection />
-        <TrackerSection />
-        <TeamSection />
-        <RoadmapSection />
-        <ContactSection />
-      </main>
-    </div>
+        <Header />
+
+        <main style={styles.main}>
+          <HeroSection />
+          <AboutSection />
+          <TeamSection />
+          <SolutionSection />
+          <PartnersSection />
+          <UpdatesSection />
+          <TrackerSection />
+          <ContactSection />
+        </main>
+      </div>
+    </>
   );
 }
+

@@ -50,10 +50,6 @@
   }
 }
 
-body {
-  margin: 0;
-}
-
 #root {
   width: 1126px;
   max-width: 100%;
@@ -109,3 +105,12 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+}
+

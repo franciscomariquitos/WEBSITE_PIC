@@ -1,5 +1,6 @@
 import { colors } from "./data/siteData";
 import type { CSSProperties } from "react";
+import { FileText, Mail, Linkedin } from "lucide-react";
 
 export const styles: Record<string, CSSProperties> = {
   page: {
@@ -71,35 +72,172 @@ export const styles: Record<string, CSSProperties> = {
     pointerEvents: "none",
   },
   header: {
-    position: "sticky",
-    top: 0,
-    zIndex: 50,
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
-    backdropFilter: "blur(16px)",
-    background: "linear-gradient(180deg, rgba(3,8,42,0.72), rgba(3,8,42,0.48))",
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  zIndex: 100,
+  background: "linear-gradient(90deg, rgba(6,12,58,0.82), rgba(16,20,96,0.66), rgba(23,10,88,0.72))",
+  backdropFilter: "blur(18px)",
+  boxSizing: "border-box",
 },
-  headerInner: {
-    maxWidth: 1280,
-    margin: "0 auto",
-    padding: "16px 24px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 20,
-    flexWrap: "wrap",
+
+
+headerInner: {
+  width: "100%",
+  padding: "14px 42px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  height: 70,              // altura fixa da navbar
+  boxSizing: "border-box",
 },
-  brandTitle: { fontSize: 18, fontWeight: 700, letterSpacing: 0.3 },
+
+
+brandTitle: {
+  fontFamily: '"Syne", sans-serif',
+  fontSize: 24,
+  fontWeight: 600,
+  letterSpacing: "-0.03em",
+  color: "#F8FAFC",
+},
   brandSub: { fontSize: 12, color: colors.muted, marginTop: 2, fontWeight: 500 },
-  navDesktop: { display: "flex", gap: 24, flexWrap: "wrap", alignItems: "center" },
-  navLink: {
-    color: "#e2e8f0",
-    fontSize: 14,
-    textDecoration: "none",
-    fontWeight: 500
+
+navDesktop: {
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+  gap: 30,
+  flexWrap: "wrap",
 },
+
+brandTextOnly: {
+  textDecoration: "none",
+  fontFamily: '"Syne", sans-serif',
+  fontSize: 24,
+  fontWeight: 600,
+  letterSpacing: "-0.03em",
+  color: "#F8FAFC",
+},
+
+heroTitleSingleLine: {
+  fontFamily: '"Syne", sans-serif',
+  fontWeight: 600,
+  fontSize: "clamp(5rem, 10vw, 9rem)",
+  lineHeight: 0.95,
+  letterSpacing: "-0.065em",
+  color: "#F8FAFC",
+  textAlign: "center",
+  margin: "0",
+},
+
+heroVestRow: {
+  marginTop: 4,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 20,
+  flexDirection: "row",
+},
+
+heroVestIcon: {
+  height: 120,
+  width: "auto",
+  display: "block",
+  filter: "drop-shadow(0 0 18px rgba(0, 237, 245, 0.32))",
+},
+
+heroVestText: {
+  fontFamily: '"Syne", sans-serif',
+  fontWeight: 600,
+  fontSize: "clamp(4.2rem, 8vw, 7rem)",
+  lineHeight: 1,
+  letterSpacing: "-0.055em",
+  color: "#F8FAFC",
+},
+
+navLink: {
+  color: "#F8FAFC",
+  fontFamily: '"Syne", sans-serif',
+  fontSize: 18,
+  textDecoration: "none",
+  fontWeight: 600,
+  opacity: 0.95,
+  position: "relative",
+  paddingBottom: 0,
+  display: "inline-block",
+  borderBottom: "2px solid #53D3FF",
+},
+
+
+downloadButton: {
+  textDecoration: "none",
+  color: "#F8FAFC",
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  borderRadius: 999,
+  padding: "13px 22px",
+  fontFamily: '"Syne", sans-serif',
+  fontWeight: 600,
+  fontSize: 15,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  whiteSpace: "nowrap",
+},
+
+heroTitleMainCentered: {
+  fontFamily: '"Syne", sans-serif',
+  fontWeight: 600,
+  fontSize: "clamp(4.8rem, 9vw, 8.8rem)",
+  lineHeight: 0.95,
+  letterSpacing: "-0.06em",
+  color: "#F8FAFC",
+  textAlign: "center",
+  margin: "0",
+},
+
   main: { position: "relative", zIndex: 1 },
-  heroSection: { minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" },
-  heroInner: { maxWidth: 1320, width: "100%", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" },
+  heroSection: {
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "130px 24px 24px",
+  boxSizing: "border-box",
+},
+
+
+heroInner: {
+  maxWidth: 1460,
+  width: "100%",
+  minHeight: "calc(100vh - 130px)",
+  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  position: "relative",
+  transform: "translateY(-10px)",
+},
+
+heroTopRight: {
+  position: "absolute",
+  top: 0,
+  right: 0,
+  display: "flex",
+  justifyContent: "flex-end",
+  width: "100%",
+},
+
+
+heroTopRow: {
+  marginBottom: 26,
+  display: "flex",
+  justifyContent: "center",
+  width: "100%",
+},
+
   badge: {
     display: "inline-flex",
     alignItems: "center",
@@ -129,6 +267,20 @@ export const styles: Record<string, CSSProperties> = {
   width: "100%",
 },
 
+proposalPill: {
+  textDecoration: "none",
+  borderRadius: 999,
+  padding: "10px 18px",
+  background: "rgba(255,255,255,0.10)",
+  color: "#F8FAFC",
+  fontFamily: '"Syne", sans-serif',
+  fontWeight: 600,
+  fontSize: 14,
+  border: "1px solid rgba(255,255,255,0.10)",
+},
+
+
+
 heroTitleMain: {
   fontFamily: '"Syne", sans-serif',
   fontWeight: 600,
@@ -151,12 +303,25 @@ heroTitleSub: {
   maxWidth: "88vw",
 },
 heroSubtitle: {
-    marginTop: 28,
-    maxWidth: 900,
-    fontSize: 18,
-    lineHeight: 1.8,
-    color: "rgba(248,250,252,0.88)",
+  marginTop: 26,
+  maxWidth: 980,
+  fontSize: 22,
+  lineHeight: 1.65,
+  color: "rgba(248,250,252,0.88)",
+  textAlign: "center",
 },
+
+proposalButton: {
+  textDecoration: "none",
+  borderRadius: 999,
+  padding: "13px 22px",
+  background: "rgba(255,255,255,0.10)",
+  color: "#F8FAFC",
+  fontWeight: 600,
+  fontSize: 15,
+  border: "1px solid rgba(255,255,255,0.10)",
+},
+
   heroButtons: { display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginTop: 34 },
   buttonPrimary: {
     border: 0,
@@ -181,14 +346,21 @@ heroSubtitle: {
   heroTags: { marginTop: 38, display: "flex", gap: 12, rowGap: 10, flexWrap: "wrap", justifyContent: "center", color: "#e2e8f0", fontSize: 15 },
   dot: { width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.55)", display: "inline-block", alignSelf: "center" },
   scrollLink: { marginTop: 36, display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#e2e8f0", fontSize: 14 },
-  sectionWrap: { maxWidth: 1280, margin: "0 auto", padding: "84px 24px 0" },
-  sectionTitle: {
+  sectionWrap: {
+  maxWidth: 1280,
+  margin: "0 auto",
+  padding: "84px 24px 0",
+  scrollMarginTop: 120,
+},
+  
+sectionTitle: {
   fontFamily: '"Syne", sans-serif',
   fontWeight: 600,
   fontSize: "clamp(2rem, 4vw, 3.2rem)",
   lineHeight: 1.1,
   margin: "18px 0 0",
   letterSpacing: "-0.02em",
+  color: "#F8FAFC",
 },
   sectionDescription: {
   marginTop: 14,
@@ -197,14 +369,15 @@ heroSubtitle: {
   fontSize: 15.5,
   fontWeight: 500
 },
-  card: {
-    borderRadius: 28,
-    border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(255,255,255,0.045)",
-    backdropFilter: "blur(10px)",
-    padding: 24,
-    boxSizing: "border-box",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.14)",
+card: {
+  borderRadius: 28,
+  border: "1px solid rgba(255,255,255,0.10)",
+  background: "rgba(255,255,255,0.045)",
+  backdropFilter: "blur(10px)",
+  padding: 16,
+  boxSizing: "border-box",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.14)",
+  overflow: "hidden",
 },
   twoColGrid: { display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 24 },
   twoColGridAlt: { display: "grid", gridTemplateColumns: "0.95fr 1.05fr", gap: 24, alignItems: "start" },
@@ -216,20 +389,37 @@ heroSubtitle: {
   label: { color: colors.cyan2, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.20em", fontWeight: 600 },
   longText: { marginTop: 12, color: "#cbd5e1", lineHeight: 1.95, fontSize: 15.5 },
   iconChip: { width: 42, height: 42, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 16, border: "1px solid rgba(34,211,238,0.22)", background: "rgba(34,211,238,0.12)", color: colors.cyan2, marginBottom: 16 },
-  cardTitle: {
+ cardTitle: {
   fontFamily: '"Syne", sans-serif',
-  fontSize: 21,
-  lineHeight: 1.25,
+  fontSize: 19,
+  lineHeight: 1.2,
   margin: 0,
   fontWeight: 600,
+  textAlign: "center",
+  color: "#F8FAFC",
 },
   cardText: {
-  color: "#cbd5e1",
-  lineHeight: 1.7,
-  fontSize: 15,
-  marginTop: 10,
-  fontWeight: 500
+  color: "#F8FAFC",
+  lineHeight: 1.45,
+  fontSize: 13.5,
+  marginTop: 6,
+  fontWeight: 500,
+  textAlign: "center",
 },
+
+logoWrap: {
+  display: "flex",
+  alignItems: "center",
+  transform: "translateY(6px)",   // ajusta posição vertical
+},
+
+logoImage: {
+  height: 100,
+  transform: "translateY(6px)"
+},
+
+
+
   stepCard: { borderRadius: 20, border: `1px solid ${colors.border}`, background: "rgba(2,6,23,0.45)", padding: 16 },
   stepLabel: { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.20em", color: colors.cyan2, marginBottom: 10, fontWeight: 600 },
   featureGradientCard: { background: "linear-gradient(135deg, rgba(8,145,178,0.12), rgba(91,33,182,0.12), rgba(255,255,255,0.03))" },
@@ -257,6 +447,57 @@ heroSubtitle: {
   statusItem: { borderRadius: 12, background: "rgba(255,255,255,0.05)", padding: "10px 12px", color: "#cbd5e1", fontSize: 14 },
   monthRow: { display: "flex", gap: 18, borderRadius: 18, border: `1px solid ${colors.border}`, background: "rgba(2,6,23,0.42)", padding: 14, alignItems: "flex-start" },
   monthLabel: { width: 90, color: colors.cyan2, fontSize: 14, fontWeight: 500 },
+  teamGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: 28,
+    alignItems: "stretch",
+  },
+
+  teamPhoto: {
+  maxWidth: "82%",
+  maxHeight: 260,
+  width: "auto",
+  height: "auto",
+  objectFit: "contain",
+  objectPosition: "center bottom",
+  display: "block",
+  margin: "0 auto",
+},
+
+teamPhotoWrap: {
+  height: 260,
+  display: "flex",
+  alignItems: "flex-end",
+  justifyContent: "center",
+  marginBottom: 8,
+},
+
+teamCardTop: {
+  display: "flex",
+  justifyContent: "flex-end",
+  marginBottom: 4,
+},
+
+teamIcons: {
+  display: "flex",
+  gap: 10,
+  alignItems: "center",
+},
+
+teamIconLink: {
+  color: "#F8FAFC",
+  textDecoration: "none",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 30,
+  height: 30,
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.10)",
+},
+
   memberAvatar: { width: 82, height: 82, borderRadius: 24, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(34,211,238,0.22)", background: "linear-gradient(135deg, rgba(28,124,199,0.18), rgba(75,47,153,0.18))", color: colors.text, fontWeight: 700, marginBottom: 18, fontSize: 20 },
   profileButton: { marginTop: 14, borderRadius: 999, border: `1px solid ${colors.border}`, background: "rgba(255,255,255,0.05)", color: colors.text, padding: "10px 14px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer" },
   roadmapCard: { borderRadius: 28, border: `1px solid ${colors.border}`, padding: 24, display: "grid", gridTemplateColumns: "0.22fr 0.78fr", gap: 24, alignItems: "center" },
