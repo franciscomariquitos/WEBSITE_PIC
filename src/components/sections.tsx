@@ -116,7 +116,13 @@ function BlogCard({ post }: { post: (typeof siteData.updates)[number] }) {
       </div>
       <h3 style={styles.cardTitle}>{post.title}</h3>
       <p style={styles.cardText}>{post.summary}</p>
-      <div style={styles.imagePlaceholder}>Optional image slot</div>
+      <div style={styles.imagePlaceholder}>{post.image && (
+  <img
+    src={post.image}
+    alt={post.title}
+    style={styles.blogImage}
+  />
+)}</div>
       {open && <p style={styles.cardText}>{post.content}</p>}
       <button onClick={() => setOpen(!open)} style={styles.linkButton}>
         {open ? "Hide full update" : "Read full update"} <ChevronRight size={16} />
@@ -191,7 +197,7 @@ export function AboutSection() {
       <SectionHeading
         eyebrow="About the project"
         title="A wearable system designed for safer, more confident navigation"
-        description="This section translates the proposal into a clearer public-facing narrative while preserving the core positioning of the project."
+        description=""
       />
 
       <div style={styles.twoColGrid}>
@@ -241,7 +247,7 @@ export function SolutionSection() {
       <SectionHeading
         eyebrow="Solution and features"
         title="Technical architecture presented as a premium product narrative"
-        description="The proposal describes a system centered on sensing, haptic feedback, localization, communications, and live monitoring."
+        description=""
       />
 
       <div style={styles.threeGrid}>
@@ -277,8 +283,8 @@ export function PartnersSection() {
     >
       <SectionHeading
         eyebrow="Partners"
-        title="A dedicated partner wall"
-        description="Grid structure so collaborators and sponsors can be added easily."
+        title="Meet our partners"
+        description=""
       />
 
       <div style={styles.fourGrid}>
@@ -318,7 +324,7 @@ export function UpdatesSection() {
       <SectionHeading
         eyebrow="Weekly blog"
         title="Week-by-week development updates"
-        description="Progress tracking for development, testing and research."
+        description=""
       />
 
       <div style={styles.tabsWrap}>

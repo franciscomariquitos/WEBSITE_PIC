@@ -230,6 +230,13 @@ heroTopRight: {
   width: "100%",
 },
 
+blogImage: {
+  width: "100%",
+  height: "180px",
+  objectFit: "cover",
+  borderRadius: "12px",
+  marginTop: "12px",
+},
 
 heroTopRow: {
   marginBottom: 26,

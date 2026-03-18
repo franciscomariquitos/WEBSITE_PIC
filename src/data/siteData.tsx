@@ -8,6 +8,10 @@ import {
 } from "lucide-react";
 
 
+import blog_img1 from "../assets/blog_img_1.jpg";
+import blog_img2 from "../assets/blog_img_2.jpg";
+import blog_img3 from "../assets/blog_img_3.jpg"
+import blog_img4 from "../assets/blog_img_4.png"
 
 export const colors = {
   bg: "#020326",
@@ -30,6 +34,8 @@ export const sectionIds = {
   Team: "team",
   Contact: "contact",
 };
+
+
 
 export const siteData = {
   project: {
@@ -80,6 +86,8 @@ export const siteData = {
     { name: "Partner Name", type: "Community Partner", desc: "Short description or role in the project.", logo: "CP" },
     { name: "Partner Name", type: "Support Partner", desc: "Short description or role in the project.", logo: "SP" },
   ],
+
+  //BLOG UPDATES
   updates: [
     {
       title: "Website and Blog Launch",
@@ -87,6 +95,7 @@ export const siteData = {
       category: "Design",
       summary: "Initial launch of the public-facing project website, branding system, and weekly update structure.",
       content: "This week focused on establishing the project identity online, aligning visual direction with the pitch deck, and creating a maintainable content architecture for updates, partners, and roadmap items.",
+      image: blog_img1,
     },
     {
       title: "Prototype Development Started",
@@ -94,6 +103,15 @@ export const siteData = {
       category: "Development",
       summary: "First hardware and integration work for the vest architecture began.",
       content: "The team initiated prototype assembly, sensor selection refinement, and early systems integration planning for communications, sensing, and data handling.",
+      image: blog_img2,
+    },
+    {
+      title: "Website Improvements & System Requirements",
+      date: "2026-03-09",
+      category: "Development",
+      summary:"The team reorganized the website, defined requirements, engaged with users, started the dashboard, and gained insights from a seminar.",
+      content:"The team improved the project website and defined system requirements to guide development. They also contacted visual impairment associations to better understand user needs, began work on the application dashboard for monitoring data and system status, and gained useful insights from a seminar",
+      image: blog_img3,
     },
     {
       title: "Testing Pipeline Definition",
@@ -101,7 +119,9 @@ export const siteData = {
       category: "Testing",
       summary: "Validation metrics were organized around sensing, communication, power, and reliability.",
       content: "A structured testing plan was assembled to evaluate obstacle detection range, transmission delay, update rate, packet loss, thermal behavior, and overall system stability.",
+      image: blog_img4,
     },
+
   ],
   tracker: [
     { title: "Website and Blog Launch", owner: "Daniel", priority: "Medium", status: "Done", due: "2026-02-15", progress: 100 },
