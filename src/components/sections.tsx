@@ -15,9 +15,9 @@ import {
   Sparkles,
   Users
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { fadeUp, staggerContainer } from "../animations";
-import { sectionIds, siteData } from "../data/siteData"
+import { sectionIds, siteData, colors } from "../data/siteData"
 import { styles } from "../styles"
 import { Badge, Button, Card, Dot, ProgressBar } from "./ui"
 import daniel from "../assets/daniel.png";
@@ -26,35 +26,46 @@ import francisco from "../assets/francisco.png";
 import fred from "../assets/fred.png";
 import raquel from "../assets/raquel.png";
 import tiago from "../assets/tiago.png";
+import { CrystalCircuitAnimation } from "./CrystalCircuitAnimation";
 
 
 export function Header() {
+  const isMobile = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+  const MobileNav = React.lazy(() => import("./MobileNav"));
   return (
     <header style={styles.header}>
       <div style={styles.headerInner}>
         <a href="#top" style={styles.brandTextOnly}>
           NAVISense
         </a>
-
-        <nav style={styles.navDesktop}>
-          {siteData.nav.map((item) => (
+        {isMobile ? (
+          <React.Suspense fallback={null}>
+            <MobileNav />
+          </React.Suspense>
+        ) : (
+          <nav style={styles.navDesktop} role="navigation" aria-label="Main navigation">
+            {siteData.nav.map((item) => (
+              <a
+                key={item}
+                href={`#${sectionIds[item as keyof typeof sectionIds]}`}
+                style={styles.navLink}
+                tabIndex={0}
+                aria-label={item}
+              >
+                {item}
+              </a>
+            ))}
             <a
-              key={item}
-              href={`#${sectionIds[item as keyof typeof sectionIds]}`}
-              style={styles.navLink}
+              href="/Project_Proposal.pdf"
+              download="NAVISense_Project_Proposal.pdf"
+              style={styles.downloadButton}
+              tabIndex={0}
+              aria-label="Download Project Proposal"
             >
-              {item}
+              Download Our Project Proposal
             </a>
-          ))}
-
-          <a
-            href={`${import.meta.env.BASE_URL}proposal.pdf`}
-            download
-            style={styles.downloadButton}
-          >
-            Download Our Project Proposal
-          </a>
-        </nav>
+          </nav>
+        )}
       </div>
     </header>
   );
@@ -78,7 +89,6 @@ function SectionHeading({
     textAlign: "center",
   }}
 >
-      {eyebrow ? <Badge>{eyebrow}</Badge> : null}
       <h2 style={styles.sectionTitle}>{title}</h2>
       {description ? (
         <p style={styles.sectionDescription}>{description}</p>
@@ -115,15 +125,23 @@ function BlogCard({ post }: { post: (typeof siteData.updates)[number] }) {
         <span style={styles.smallMuted}>{post.date}</span>
       </div>
       <h3 style={styles.cardTitle}>{post.title}</h3>
+      <p style={{...styles.smallMuted, fontSize: "13px", marginBottom: "12px"}}>
+        By {post.author}
+      </p>
       <p style={styles.cardText}>{post.summary}</p>
-      <div style={styles.imagePlaceholder}>{post.image && (
-  <img
-    src={post.image}
-    alt={post.title}
-    style={styles.blogImage}
-  />
-)}</div>
-      {open && <p style={styles.cardText}>{post.content}</p>}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.3 }}
+            style={{ overflow: "hidden" }}
+          >
+            <p style={styles.cardText}>{post.content}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <button onClick={() => setOpen(!open)} style={styles.linkButton}>
         {open ? "Hide full update" : "Read full update"} <ChevronRight size={16} />
       </button>
@@ -152,6 +170,8 @@ export function HeroSection() {
             src={vesticon}
             alt="NAVISense icon"
             style={styles.heroVestIcon}
+            role="img"
+            aria-label="NAVISense icon"
           />
         </motion.div>
 
@@ -161,9 +181,6 @@ export function HeroSection() {
           feedback, and connected monitoring.
         </motion.p>
 
-        <motion.div style={styles.heroButtons} variants={fadeUp}>
-          <Button>Explore the Project</Button>
-        </motion.div>
 
         <motion.div style={styles.heroTags} variants={fadeUp}>
           <span>Wearable sensing</span>
@@ -184,6 +201,10 @@ export function HeroSection() {
 }
 
 
+
+import { AlertTriangle, Eye, Lightbulb } from "lucide-react";
+import { LightningAnimation } from "./LightningAnimation";
+
 export function AboutSection() {
   return (
     <motion.section
@@ -196,28 +217,59 @@ export function AboutSection() {
     >
       <SectionHeading
         eyebrow="About the project"
-        title="A wearable system designed for safer, more confident navigation"
+        title="Safer Navigation"
         description=""
       />
 
-      <div style={styles.twoColGrid}>
+
+      {/* Three-Column Main Concepts with animated icons */}
+      <div style={styles.threeGrid}>
         <Card>
-          <div style={styles.blockGroup}>
+          <motion.div style={styles.blockGroup} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>
+            <motion.div
+              style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}
+              whileHover={{ scale: 1.13, rotate: -8 }}
+              transition={{ type: "spring", stiffness: 220, damping: 12 }}
+            >
+              <AlertTriangle size={32} color="#5FA9E8" />
+            </motion.div>
             <div style={styles.label}>Why it exists</div>
             <p style={styles.longText}>{siteData.about.problem}</p>
-          </div>
-
-          <div style={styles.blockGroup}>
-            <div style={styles.label}>Why it matters</div>
-            <p style={styles.longText}>{siteData.about.importance}</p>
-          </div>
-
-          <div style={styles.blockGroup}>
-            <div style={styles.label}>Vision</div>
-            <p style={styles.longText}>{siteData.about.vision}</p>
-          </div>
+          </motion.div>
         </Card>
 
+        <Card>
+          <motion.div style={styles.blockGroup} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
+            <motion.div
+              style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}
+              whileHover={{ scale: 1.13, rotate: 8 }}
+              transition={{ type: "spring", stiffness: 220, damping: 12 }}
+            >
+              <Eye size={32} color="#A88FFF" />
+            </motion.div>
+            <div style={styles.label}>Why it matters</div>
+            <p style={styles.longText}>{siteData.about.importance}</p>
+          </motion.div>
+        </Card>
+
+        <Card>
+          <motion.div style={styles.blockGroup} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }}>
+            <motion.div
+              style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}
+              whileHover={{ scale: 1.13, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 220, damping: 12 }}
+            >
+              <Lightbulb size={32} color="#FFD966" />
+            </motion.div>
+            <div style={styles.label}>Vision</div>
+            <p style={styles.longText}>{siteData.about.vision}</p>
+          </motion.div>
+        </Card>
+      </div>
+
+      {/* Beneficiaries Section */}
+      <div style={{ marginTop: "48px" }}>
+        <h3 style={{ ...styles.label, marginBottom: "24px" }}>Who benefits</h3>
         <div style={styles.fourGrid}>
           {siteData.about.beneficiaries.map((item) => (
             <Card key={item.title}>
@@ -246,7 +298,7 @@ export function SolutionSection() {
     >
       <SectionHeading
         eyebrow="Solution and features"
-        title="Technical architecture presented as a premium product narrative"
+        title="Premium Architecture"
         description=""
       />
 
@@ -287,30 +339,43 @@ export function PartnersSection() {
         description=""
       />
 
-      <div style={styles.fourGrid}>
-        {siteData.partners.map((partner, idx) => (
-          <Card key={`${partner.name}-${idx}`}>
-            <div style={styles.logoBox}>{partner.logo}</div>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(220px, 1fr))",
+        gap: 40,
+        justifyContent: "center",
+        alignItems: "stretch",
+        margin: "0 auto",
+        maxWidth: 600,
+      }}>
+        {siteData.partners
+          .filter(p => p.type !== "Community Partner" && p.type !== "Support Partner")
+          .map((partner, idx) => (
+            <Card key={`${partner.name}-${idx}`}>
+              <div style={styles.logoBox}>{partner.logo}</div>
 
-            <h3 style={styles.cardTitle}>{partner.name}</h3>
+              <h3 style={styles.cardTitle}>{partner.name}</h3>
 
-            <div style={styles.partnerType}>{partner.type}</div>
+              <div style={styles.partnerType}>{partner.type}</div>
 
-            <p style={styles.cardText}>{partner.desc}</p>
-          </Card>
-        ))}
+              <p style={styles.cardText}>{partner.desc}</p>
+            </Card>
+          ))}
       </div>
     </motion.section>
   );
 }
 
-export function UpdatesSection() {
+export function UpdatesSection({ onOpenBlog }: { onOpenBlog?: () => void }) {
   const [activeTab, setActiveTab] = useState("all");
 
   const filteredPosts =
     activeTab === "all"
       ? siteData.updates
       : siteData.updates.filter((p) => p.category === activeTab);
+
+  const displayedPosts = filteredPosts.slice(0, 3);
+  const hasMore = filteredPosts.length > 3;
 
   return (
     <motion.section
@@ -345,10 +410,18 @@ export function UpdatesSection() {
       </div>
 
       <div style={styles.threeGrid}>
-        {filteredPosts.map((post) => (
+        {displayedPosts.map((post) => (
           <BlogCard key={`${post.title}-${post.date}`} post={post} />
         ))}
       </div>
+
+      {hasMore && onOpenBlog && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "32px" }}>
+          <button onClick={onOpenBlog} style={styles.buttonPrimary}>
+            See all updates <ChevronRight size={18} style={{ marginLeft: "8px" }} />
+          </button>
+        </div>
+      )}
     </motion.section>
   );
 }
@@ -376,8 +449,8 @@ export function TrackerSection() {
     >
       <SectionHeading
         eyebrow="Task tracker"
-        title="A dashboard-like project tracker blending roadmap, calendar, and milestones"
-        description="This section is deliberately editable through arrays, making it practical for deadlines, ownership, status labels, and progress monitoring."
+        title="Progress Tracker"
+        description=""
       />
 
       <div style={styles.twoColGridAlt}>
@@ -578,28 +651,142 @@ export function RoadmapSection() {
 
 export function ContactSection() {
   return (
-    <section id="contact" style={{ ...styles.sectionWrap, paddingBottom: 80 }}>
-      <div style={styles.contactPanel}>
-        <div>
-          <Badge>Contact and footer</Badge>
-          <h2 style={{ ...styles.sectionTitle, marginTop: 20 }}>Built to present progress with clarity and credibility</h2>
-          <p style={styles.sectionDescription}>Use this section for project contact details, social links, acknowledgements, and navigation shortcuts. The entire website is structured for easy long-term maintenance.</p>
-          <div style={styles.heroButtons}><Button>{siteData.project.email}</Button><Button secondary>Project media kit</Button></div>
-        </div>
-        <div style={styles.twoGrid}>
-          <Card style={styles.darkPanel}>
-            <div style={styles.partnerType}>Navigation</div>
-            <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
-              {siteData.nav.map((item) => <a key={item} href={`#${sectionIds[item as keyof typeof sectionIds]}`} style={styles.footerLink}>{item}</a>)}
+    <footer
+      id="contact"
+      style={{
+        marginTop: 120,
+        padding: "0 0 0 0",
+        borderTop: `1px solid rgba(35, 197, 255, 0.13)`,
+        background: "linear-gradient(180deg, rgba(2, 3, 38, 0.7) 60%, rgba(35,197,255,0.08) 100%)",
+        backdropFilter: "blur(12px)",
+        boxShadow: "0 -2px 32px 0 rgba(35,197,255,0.08)",
+      }}
+    >
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 24px 0 24px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 40 }}>
+          {/* About */}
+          <div style={{ minWidth: 220, flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: 22, color: colors.cyan2, letterSpacing: "-0.02em", marginBottom: 12 }}>{siteData.project.name}</div>
+            <p style={{ ...styles.cardText, opacity: 0.8, fontSize: 14, margin: 0, marginBottom: 12 }}>{siteData.project.acknowledgements}</p>
+          </div>
+
+          {/* Contact & Social */}
+          <div style={{ minWidth: 220, flex: 1 }}>
+            <div style={{ ...styles.label, marginBottom: 16 }}>Contact</div>
+            <a
+              href={`mailto:${siteData.project.email}`}
+              style={{
+                color: colors.cyan2,
+                textDecoration: "none",
+                fontSize: 14,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 10,
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.color = colors.cyan;
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.color = colors.cyan2;
+              }}
+            >
+              <Mail size={16} />
+              {siteData.project.email}
+            </a>
+            <div style={{ display: "flex", gap: 16, marginTop: 4 }}>
+              <a href={siteData.project.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: colors.cyan2, opacity: 0.8, transition: "all 0.2s" }} aria-label="LinkedIn">
+                <Linkedin size={20} />
+              </a>
+              <a href={`mailto:${siteData.project.email}`} style={{ color: colors.cyan2, opacity: 0.8, transition: "all 0.2s" }} aria-label="Email">
+                <Mail size={20} />
+              </a>
             </div>
-          </Card>
-          <Card style={styles.darkPanel}>
-            <div style={styles.partnerType}>Acknowledgement</div>
-            <p style={{ ...styles.cardText, marginTop: 16 }}>{siteData.project.acknowledgements}</p>
-            <p style={{ ...styles.cardText, marginTop: 18, display: "flex", alignItems: "center", gap: 8 }}><Mail size={16} /> {siteData.project.email}</p>
-          </Card>
+          </div>
+        </div>
+
+        {/* Navigation (moved below) */}
+        <div style={{ marginTop: 40, marginBottom: 0, textAlign: "center" }}>
+          <div style={{ ...styles.label, marginBottom: 16 }}>Navigate</div>
+          <div style={{ display: "flex", flexDirection: "row", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
+            {siteData.nav.map((item) => (
+              <a
+                key={item}
+                href={`#${sectionIds[item as keyof typeof sectionIds]}`}
+                style={{
+                  color: styles.cardText.color,
+                  textDecoration: "none",
+                  fontSize: 14,
+                  opacity: 0.8,
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.color = colors.cyan2;
+                  el.style.opacity = "1";
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.color = styles.cardText.color;
+                  el.style.opacity = "0.8";
+                }}
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Bottom */}
+        <div
+          style={{
+            borderTop: `1px solid rgba(35, 197, 255, 0.08)`,
+            paddingTop: 24,
+            marginTop: 40,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 16,
+          }}
+        >
+          <p
+            style={{
+              margin: 0,
+              fontSize: 13,
+              opacity: 0.6,
+              color: styles.cardText.color,
+            }}
+          >
+            © 2026 {siteData.project.name}. All rights reserved.
+          </p>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 13,
+              opacity: 0.6,
+              color: styles.cardText.color,
+            }}
+          >
+            Designed with clarity and credibility.
+          </p>
         </div>
       </div>
-    </section>
+    </footer>
   );
 }
+
+{/* Visual separation: subtle top glow */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: 18,
+          background: "linear-gradient(180deg, rgba(35,197,255,0.18) 0%, transparent 100%)",
+          pointerEvents: "none",
+          zIndex: 1,
+        }} />

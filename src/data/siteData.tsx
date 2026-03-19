@@ -20,8 +20,8 @@ export const colors = {
   indigo: "#2F2C8F",
   cyan: "#1C7CC7",
   cyan2: "#5FA9E8",
-  text: "#F8FAFC",
-  muted: "#CBD5E1",
+  text: "#E0E4E9",
+  muted: "#A8B0BE",
   border: "rgba(255,255,255,0.10)",
 };
 
@@ -51,7 +51,7 @@ export const siteData = {
     email: "team@navisense.example",
     acknowledgements: "Instituto Superior Técnico · Student Innovation Project",
   },
-  nav: ["About", "Solution", "Partners", "Blog", "Tracker", "Team", "Contact"],
+  nav: ["About", "Solution", "Team", "Partners", "Tracker", "Blog", "Contact"],
   about: {
     problem:
       "People with visual impairments and reduced mobility face persistent navigation challenges in complex environments, where limited environmental feedback can increase the risk of collisions, disorientation, and reduced autonomy.",
@@ -81,8 +81,8 @@ export const siteData = {
     "Practical engineering focus on latency, power, and reliability",
   ],
   partners: [
-    { name: "Partner Name", type: "Institutional Partner", desc: "Short description or role in the project.", logo: "PN" },
-    { name: "Partner Name", type: "Technical Partner", desc: "Short description or role in the project.", logo: "TP" },
+    { name: "Instituto Superior Técnico", type: "Institutional Partner", desc: "Short description or role in the project.", logo: "PN" },
+    { name: "Bengala Mágica", type: "Technical Partner", desc: "Short description or role in the project.", logo: "TP" },
     { name: "Partner Name", type: "Community Partner", desc: "Short description or role in the project.", logo: "CP" },
     { name: "Partner Name", type: "Support Partner", desc: "Short description or role in the project.", logo: "SP" },
   ],
@@ -94,32 +94,28 @@ export const siteData = {
       date: "2026-02-10",
       category: "Design",
       summary: "Initial launch of the public-facing project website, branding system, and weekly update structure.",
-      content: "This week focused on establishing the project identity online, aligning visual direction with the pitch deck, and creating a maintainable content architecture for updates, partners, and roadmap items.",
-      image: blog_img1,
+      content: "We got the website live this week! Spent time setting up the whole visual identity and making sure everything aligns with our pitch deck. Also built a clean system for sharing weekly updates so you can follow our progress.",
     },
     {
       title: "Prototype Development Started",
       date: "2026-03-03",
       category: "Development",
       summary: "First hardware and integration work for the vest architecture began.",
-      content: "The team initiated prototype assembly, sensor selection refinement, and early systems integration planning for communications, sensing, and data handling.",
-      image: blog_img2,
+      content: "Things are getting real! The team started putting together the actual prototype—picking sensors, figuring out how everything talks to each other, and planning out how data flows through the system. Exciting stuff.",
     },
     {
       title: "Website Improvements & System Requirements",
       date: "2026-03-09",
       category: "Development",
       summary:"The team reorganized the website, defined requirements, engaged with users, started the dashboard, and gained insights from a seminar.",
-      content:"The team improved the project website and defined system requirements to guide development. They also contacted visual impairment associations to better understand user needs, began work on the application dashboard for monitoring data and system status, and gained useful insights from a seminar",
-      image: blog_img3,
+      content:"Been a productive week! We revamped the website, nailed down our system requirements, and reached out to some organizations focused on visual impairment to really understand what people need. Also kicked off work on the dashboard for monitoring everything. We picked up some solid insights at a seminar too.",
     },
     {
       title: "Testing Pipeline Definition",
       date: "2026-04-01",
       category: "Testing",
       summary: "Validation metrics were organized around sensing, communication, power, and reliability.",
-      content: "A structured testing plan was assembled to evaluate obstacle detection range, transmission delay, update rate, packet loss, thermal behavior, and overall system stability.",
-      image: blog_img4,
+      content: "We put together a solid testing plan this week. We're checking obstacle detection range, transmission speed, update frequency, packet loss, how hot things get, and basically making sure the whole system is solid and reliable.",
     },
 
   ],

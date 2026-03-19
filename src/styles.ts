@@ -1,6 +1,10 @@
+
 import { colors } from "./data/siteData";
 import type { CSSProperties } from "react";
 import { FileText, Mail, Linkedin } from "lucide-react";
+
+// Mobile detection utility
+export const isMobile = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
 
 export const styles: Record<string, CSSProperties> = {
   page: {
@@ -10,7 +14,8 @@ export const styles: Record<string, CSSProperties> = {
     fontFamily: '"Adobe Gothic Std B", "Inter", "Helvetica Neue", Arial, sans-serif',
     position: "relative",
     overflowX: "hidden",
-},
+    padding: isMobile ? "0" : undefined,
+  },
   backgroundLayerA: {
     position: "fixed",
     inset: 0,
@@ -83,15 +88,15 @@ export const styles: Record<string, CSSProperties> = {
 },
 
 
-headerInner: {
-  width: "100%",
-  padding: "14px 42px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  height: 70,              // altura fixa da navbar
-  boxSizing: "border-box",
-},
+  headerInner: {
+    width: "100%",
+    padding: isMobile ? "10px 12px" : "14px 42px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: isMobile ? 54 : 70,
+    boxSizing: "border-box",
+  },
 
 
 brandTitle: {
@@ -120,15 +125,16 @@ brandTextOnly: {
   color: "#F8FAFC",
 },
 
-heroTitleSingleLine: {
+  heroTitleSingleLine: {
   fontFamily: '"Syne", sans-serif',
-  fontWeight: 600,
+  fontWeight: 700,
   fontSize: "clamp(5rem, 10vw, 9rem)",
   lineHeight: 0.95,
   letterSpacing: "-0.065em",
   color: "#F8FAFC",
   textAlign: "center",
   margin: "0",
+  textShadow: "0 0 20px rgba(35, 197, 255, 0.1)",
 },
 
 heroVestRow: {
@@ -199,27 +205,27 @@ heroTitleMainCentered: {
 
   main: { position: "relative", zIndex: 1 },
   heroSection: {
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "130px 24px 24px",
-  boxSizing: "border-box",
-},
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: isMobile ? "90px 8px 8px" : "130px 24px 24px",
+    boxSizing: "border-box",
+  },
 
 
-heroInner: {
-  maxWidth: 1460,
-  width: "100%",
-  minHeight: "calc(100vh - 130px)",
-  textAlign: "center",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "relative",
-  transform: "translateY(-10px)",
-},
+  heroInner: {
+    maxWidth: isMobile ? 420 : 1460,
+    width: "100%",
+    minHeight: isMobile ? undefined : "calc(100vh - 130px)",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+    transform: "translateY(-10px)",
+  },
 
 heroTopRight: {
   position: "absolute",
@@ -249,22 +255,24 @@ heroTopRow: {
     display: "inline-flex",
     alignItems: "center",
     padding: "8px 16px",
-    borderRadius: 999,
-    border: `1px solid ${colors.border}`,
-    background: "rgba(255,255,255,0.10)",
-    color: colors.text,
+    borderRadius: 6,
+    border: `1px solid rgba(35, 197, 255, 0.15)`,
+    background: "rgba(35, 197, 255, 0.06)",
+    color: colors.cyan2,
     fontSize: 13,
-    fontWeight: 500,
+    fontWeight: 600,
+    boxShadow: "0 0 8px rgba(35, 197, 255, 0.08)",
   },
   heroTitle: {
     margin: "28px 0 0",
     maxWidth: 1500,
     fontFamily: '"Syne", sans-serif',
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: "clamp(3.2rem, 7vw, 7rem)",
     lineHeight: 0.92,
     letterSpacing: "-0.03em",
     color: "#F8FAFC",
+    textShadow: "0 0 15px rgba(35, 197, 255, 0.12)",
   },
   heroTitleWrap: {
   marginTop: 28,
@@ -331,43 +339,47 @@ proposalButton: {
 
   heroButtons: { display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", marginTop: 34 },
   buttonPrimary: {
-    border: 0,
-    borderRadius: 999,
+    border: "1px solid rgba(35, 197, 255, 0.25)",
+    borderRadius: 10,
     padding: "13px 22px",
-    background: colors.text,
-    color: colors.bg,
-    fontWeight: 600,
+    background: "linear-gradient(135deg, rgba(35, 197, 255, 0.1), rgba(140, 76, 255, 0.08))",
+    color: colors.text,
+    fontWeight: 700,
     fontSize: 15,
     cursor: "pointer",
+    boxShadow: "0 0 12px rgba(35, 197, 255, 0.15), inset 0 0 12px rgba(35, 197, 255, 0.05)",
+    transition: "all 0.3s ease",
   },
   buttonSecondary: {
-    border: `1px solid ${colors.border}`,
-    borderRadius: 999,
+    border: "1px solid rgba(35, 197, 255, 0.15)",
+    borderRadius: 10,
     padding: "13px 22px",
-    background: "rgba(255,255,255,0.10)",
+    background: "rgba(35, 197, 255, 0.05)",
     color: colors.text,
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: 15,
     cursor: "pointer",
+    transition: "all 0.3s ease",
   },
   heroTags: { marginTop: 38, display: "flex", gap: 12, rowGap: 10, flexWrap: "wrap", justifyContent: "center", color: "#e2e8f0", fontSize: 15 },
   dot: { width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.55)", display: "inline-block", alignSelf: "center" },
   scrollLink: { marginTop: 36, display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#e2e8f0", fontSize: 14 },
   sectionWrap: {
-  maxWidth: 1280,
-  margin: "0 auto",
-  padding: "84px 24px 0",
-  scrollMarginTop: 120,
-},
+    maxWidth: isMobile ? 420 : 1280,
+    margin: "0 auto",
+    padding: isMobile ? "32px 6px 0" : "60px 24px 0",
+    scrollMarginTop: isMobile ? 80 : 120,
+  },
   
 sectionTitle: {
   fontFamily: '"Syne", sans-serif',
-  fontWeight: 600,
+  fontWeight: 700,
   fontSize: "clamp(2rem, 4vw, 3.2rem)",
   lineHeight: 1.1,
   margin: "18px 0 0",
   letterSpacing: "-0.02em",
   color: "#F8FAFC",
+  textShadow: "0 0 10px rgba(35, 197, 255, 0.1)",
 },
   sectionDescription: {
   marginTop: 14,
@@ -377,33 +389,48 @@ sectionTitle: {
   fontWeight: 500
 },
 card: {
-  borderRadius: 28,
-  border: "1px solid rgba(255,255,255,0.10)",
+  borderRadius: 20,
+  border: "1px solid rgba(35, 197, 255, 0.15)",
   background: "rgba(255,255,255,0.045)",
   backdropFilter: "blur(10px)",
-  padding: 16,
+  padding: isMobile ? 10 : 16,
   boxSizing: "border-box",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.14)",
+  boxShadow: "0 0 12px rgba(35, 197, 255, 0.12), inset 0 0 15px rgba(35, 197, 255, 0.04)",
   overflow: "hidden",
+  position: "relative",
 },
   twoColGrid: { display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 24 },
   twoColGridAlt: { display: "grid", gridTemplateColumns: "0.95fr 1.05fr", gap: 24, alignItems: "start" },
   twoGrid: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 },
-  threeGrid: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 24 },
-  fourGrid: { display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 24 },
-  fourGridFlat: { display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16, marginTop: 18 },
+  threeGrid: {
+    display: "grid",
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
+    gap: isMobile ? 14 : 24,
+  },
+  fourGrid: {
+    display: "grid",
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(4, minmax(0, 1fr))",
+    gap: isMobile ? 12 : 24,
+  },
+  fourGridFlat: {
+    display: "grid",
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(4, minmax(0, 1fr))",
+    gap: isMobile ? 8 : 16,
+    marginTop: isMobile ? 10 : 18,
+  },
   blockGroup: { marginBottom: 24 },
-  label: { color: colors.cyan2, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.20em", fontWeight: 600 },
+  label: { color: colors.cyan2, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.20em", fontWeight: 700, textShadow: "0 0 6px rgba(95, 169, 232, 0.15)" },
   longText: { marginTop: 12, color: "#cbd5e1", lineHeight: 1.95, fontSize: 15.5 },
-  iconChip: { width: 42, height: 42, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 16, border: "1px solid rgba(34,211,238,0.22)", background: "rgba(34,211,238,0.12)", color: colors.cyan2, marginBottom: 16 },
+  iconChip: { width: 42, height: 42, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 12, border: "1px solid rgba(35, 197, 255, 0.2)", background: "rgba(35, 197, 255, 0.08)", color: colors.cyan2, marginBottom: 16, boxShadow: "0 0 8px rgba(35, 197, 255, 0.1)" },
  cardTitle: {
   fontFamily: '"Syne", sans-serif',
   fontSize: 19,
   lineHeight: 1.2,
   margin: 0,
-  fontWeight: 600,
+  fontWeight: 700,
   textAlign: "center",
   color: "#F8FAFC",
+  textShadow: "0 0 6px rgba(95, 169, 232, 0.08)",
 },
   cardText: {
   color: "#F8FAFC",
@@ -433,13 +460,19 @@ logoImage: {
   logoBox: { width: 64, height: 64, borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(34,211,238,0.22)", background: "rgba(34,211,238,0.12)", color: "#dbeafe", fontWeight: 700, marginBottom: 18 },
   partnerType: { marginTop: 8, color: colors.cyan2, fontSize: 14, fontWeight: 500 },
   tabsWrap: { display: "flex", flexWrap: "wrap", gap: 10, padding: 10, border: `1px solid ${colors.border}`, background: "rgba(255,255,255,0.05)", borderRadius: 18, marginBottom: 24 },
-  tabButton: { border: 0, borderRadius: 12, padding: "10px 14px", background: "transparent", color: colors.text, cursor: "pointer", fontWeight: 500 },
-  tabButtonActive: { background: colors.text, color: colors.bg },
-  blogTopRow: { display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" },
-  categoryPill: { display: "inline-flex", alignItems: "center", borderRadius: 999, border: "1px solid rgba(34,211,238,0.22)", background: "rgba(34,211,238,0.12)", color: colors.cyan2, padding: "6px 10px", fontSize: 12, fontWeight: 500 },
+  tabButton: { border: "1px solid rgba(35, 197, 255, 0.1)", borderRadius: 10, padding: "10px 14px", background: "rgba(255,255,255,0.02)", color: colors.text, cursor: "pointer", fontWeight: 600, transition: "all 0.2s ease" },
+  tabButtonActive: { background: "linear-gradient(135deg, rgba(35, 197, 255, 0.1), rgba(140, 76, 255, 0.08))", border: "1px solid rgba(35, 197, 255, 0.2)", color: colors.text, boxShadow: "0 0 8px rgba(35, 197, 255, 0.1)" },
+  blogTopRow: {
+    display: "flex",
+    flexDirection: isMobile ? "column" : "row",
+    justifyContent: "space-between",
+    gap: isMobile ? 4 : 16,
+    alignItems: isMobile ? "flex-start" : "center",
+  },
+  categoryPill: { display: "inline-flex", alignItems: "center", color: colors.cyan2, fontSize: 12, fontWeight: 600 },
   smallMuted: { color: "#94a3b8", fontSize: 12 },
   imagePlaceholder: { marginTop: 14, borderRadius: 18, border: `1px dashed ${colors.border}`, background: "rgba(2,6,23,0.35)", padding: 18, color: "#94a3b8", fontSize: 14 },
-  linkButton: { marginTop: 14, border: 0, background: "transparent", color: colors.cyan2, display: "inline-flex", alignItems: "center", gap: 4, padding: 0, cursor: "pointer", fontSize: 14, fontWeight: 500 },
+  linkButton: { marginTop: 14, border: 0, background: "transparent", color: colors.cyan2, display: "inline-flex", alignItems: "center", gap: 4, padding: 0, cursor: "pointer", fontSize: 14, fontWeight: 600, transition: "all 0.2s ease", textShadow: "0 0 6px rgba(95, 169, 232, 0.15)" },
   taskCard: { borderRadius: 20, border: `1px solid ${colors.border}`, background: "rgba(2,6,23,0.42)", padding: 18 },
   taskTop: { display: "flex", justifyContent: "space-between", gap: 18, alignItems: "flex-start", flexWrap: "wrap" },
   taskBadgesRow: { display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" },
@@ -447,8 +480,8 @@ logoImage: {
   metaRow: { display: "flex", gap: 16, flexWrap: "wrap", marginTop: 12, color: "#94a3b8", fontSize: 14 },
   metaItem: { display: "inline-flex", alignItems: "center", gap: 6, color: "#cbd5e1", fontSize: 14 },
   progressText: { color: colors.cyan2, fontSize: 14, minWidth: 110, textAlign: "right" },
-  progressWrap: { marginTop: 14, width: "100%", height: 8, borderRadius: 999, background: "rgba(255,255,255,0.10)", overflow: "hidden" },
-  progressBar: { height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #5FA9E8, #FFFFFF)" },
+  progressWrap: { marginTop: 14, width: "100%", height: 8, borderRadius: 0, background: "rgba(35, 197, 255, 0.06)", overflow: "hidden", border: "1px solid rgba(35, 197, 255, 0.12)" },
+  progressBar: { height: "100%", borderRadius: 0, background: "linear-gradient(90deg, rgba(35, 197, 255, 0.6), rgba(140, 76, 255, 0.6))", boxShadow: "0 0 10px rgba(35, 197, 255, 0.2)" },
   statusPanel: { borderRadius: 20, border: `1px solid ${colors.border}`, background: "rgba(2,6,23,0.42)", padding: 16 },
   statusPanelHeader: { display: "flex", justifyContent: "space-between", marginBottom: 12, alignItems: "center" },
   statusItem: { borderRadius: 12, background: "rgba(255,255,255,0.05)", padding: "10px 12px", color: "#cbd5e1", fontSize: 14 },
@@ -456,8 +489,8 @@ logoImage: {
   monthLabel: { width: 90, color: colors.cyan2, fontSize: 14, fontWeight: 500 },
   teamGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: 28,
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
+    gap: isMobile ? 14 : 28,
     alignItems: "stretch",
   },
 
