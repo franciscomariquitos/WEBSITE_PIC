@@ -602,11 +602,15 @@ export function TeamSection() {
             </div>
 
             <div style={styles.teamPhotoWrap}>
-              <img
-                src={teamPhotos[member.name]}
-                alt={member.name}
-                style={styles.teamPhoto}
-              />
+              {teamPhotos[member.name] ? (
+                <img
+                  src={teamPhotos[member.name]}
+                  alt={member.name}
+                  style={styles.teamPhoto}
+                />
+              ) : (
+                <div style={styles.memberAvatar}>{member.initials}</div>
+              )}
             </div>
 
             <h3 style={styles.cardTitle}>{member.name}</h3>
