@@ -3,6 +3,11 @@ import { motion } from "framer-motion";
 
 // SVG circuit with animated neon flows
 export function CrystalCircuitAnimation({ style }: { style?: React.CSSProperties }) {
+  const isMobile = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+
+  // Skip rendering entirely on mobile for performance
+  if (isMobile) return null;
+
   return (
     <motion.svg
       width="420"

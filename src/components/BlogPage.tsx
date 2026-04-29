@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronRight } from "lucide-react";
 import { siteData, colors } from "../data/siteData";
-import { styles } from "../styles";
+import { getStyles } from "../styles";
 import { Card } from "./ui";
-import { fadeUp, staggerContainer } from "../animations";
+import { withBaseUrl } from "../utils/assetUrl";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 // Custom scrollbar styles
 const scrollbarStyles = `
@@ -48,6 +49,8 @@ const scrollbarStyles = `
 `;
 
 export function BlogPage({ onClose }: { onClose: () => void }) {
+  const isMobile = useIsMobile();
+  const styles = getStyles(isMobile);
   const [activeTab, setActiveTab] = useState("all");
   const [expandedPost, setExpandedPost] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,12 +61,14 @@ export function BlogPage({ onClose }: { onClose: () => void }) {
       ? siteData.updates
       : siteData.updates.filter((p) => p.category === activeTab);
 
-  // Filter by search query
+  // Filter by search query (title, summary, content, or date)
   if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
     filteredPosts = filteredPosts.filter((p) =>
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.content.toLowerCase().includes(searchQuery.toLowerCase())
+      p.title.toLowerCase().includes(query) ||
+      p.summary.toLowerCase().includes(query) ||
+      p.content.toLowerCase().includes(query) ||
+      p.date.toLowerCase().includes(query)
     );
   }
 
@@ -421,6 +426,27 @@ export function BlogPage({ onClose }: { onClose: () => void }) {
                     : "Read full update"}{" "}
                   <ChevronRight size={16} />
                 </button>
+                {post.reportPdfUrl ? (
+                  <a
+                    href={post.reportAvailable ? withBaseUrl(post.reportPdfUrl) : undefined}
+                    download={post.reportAvailable}
+                    aria-disabled={!post.reportAvailable}
+                    onClick={(event) => {
+                      if (!post.reportAvailable) {
+                        event.preventDefault();
+                      }
+                    }}
+                    style={{
+                      ...styles.linkButton,
+                      display: "inline-flex",
+                      marginLeft: 12,
+                      opacity: post.reportAvailable ? 1 : 0.62,
+                      cursor: post.reportAvailable ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    {post.reportAvailable ? "Download report" : "Report coming soon"}
+                  </a>
+                ) : null}
                 </Card>
               </motion.div>
             ))}

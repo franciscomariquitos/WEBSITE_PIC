@@ -3,6 +3,11 @@ import { motion } from "framer-motion";
 
 // Stylized lightning bolt SVG with animated stroke and glow
 export function LightningAnimation({ style, variant = "bolt" }: { style?: React.CSSProperties; variant?: "bolt" | "circuit" }) {
+  const isMobile = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+
+  // Skip rendering entirely on mobile for performance
+  if (isMobile) return null;
+
   // SVG paths for different variants
   const boltPath = "M20 10 L40 60 L30 60 L50 110 L25 80 L35 80 L20 130";
   const circuitPath = "M20 10 L40 40 L20 70 L40 100 L20 130";

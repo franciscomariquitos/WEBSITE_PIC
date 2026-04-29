@@ -1,0 +1,26 @@
+@media (max-width: 768px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  body {
+    touch-action: manipulation;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+  }
+}
+
+@media print {
+  header,
+  footer,
+  nav {
+    display: none !important;
+  }
+}

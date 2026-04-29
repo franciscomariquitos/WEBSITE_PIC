@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import type { CSSProperties } from "react";
 import { motion, useAnimation } from "framer-motion";
-import navisenseLogo from "../assets/navisense-logo.png";
+import navisenseLogo from "../assets/optimized/navisense-logo.webp";
+import { useResponsive } from "../context/ResponsiveContext";
 
 type SplashIntroProps = {
   onFinish: () => void;
@@ -9,53 +11,76 @@ type SplashIntroProps = {
 export function SplashIntro({ onFinish }: SplashIntroProps) {
   const logo = useAnimation();
   const overlay = useAnimation();
+  const finishedRef = useRef(false);
+  const { isMobile, prefersReducedMotion } = useResponsive();
 
-  useEffect(() => {
-    const run = async () => {
-      // 3 pulses de glow, sem mexer o colete
-      await logo.start({
-        filter: [
-          "drop-shadow(0 0 6px rgba(0,237,245,1))",
-          "drop-shadow(0 0 40px rgba(0,237,245,1))",
-          "drop-shadow(0 0 10px rgba(0,237,245,1))",
+  const finish = useCallback(
+    async (fast = false) => {
+      if (finishedRef.current) {
+        return;
+      }
 
-          "drop-shadow(0 0 44px rgba(0,237,245,1))",
-          "drop-shadow(0 0 12px rgba(0,237,245,1))",
+      finishedRef.current = true;
+      const duration = fast ? 0.18 : 0.55;
 
-          "drop-shadow(0 0 48px rgba(0,237,245,1))",
-          "drop-shadow(0 0 16px rgba(0,237,245,1))"
-        ],
-        transition: {
-          duration: 3,
-          times: [0, 0.18, 0.5, 0.85, 1],
-          ease: "easeInOut"
-        }
-      });
-
-      // desaparece suavemente sem morph
       await Promise.all([
         logo.start({
           opacity: 0,
-          scale: 0.98,
-          transition: {
-            duration: 0.55,
-            ease: "easeOut"
-          }
+          scale: fast ? 0.995 : 0.98,
+	          transition: {
+	            duration,
+	            ease: "easeOut",
+	          },
         }),
         overlay.start({
           opacity: 0,
-          transition: {
-            duration: 0.7,
-            ease: "easeInOut"
-          }
-        })
-      ]);
+	          transition: {
+	            duration: fast ? 0.2 : 0.65,
+	            ease: "easeInOut",
+	          },
+        }),
+      ]).catch(() => undefined);
 
       onFinish();
-    };
+    },
+    [logo, onFinish, overlay]
+  );
 
-    run();
-  }, [logo, overlay, onFinish]);
+  useEffect(() => {
+    const finishOnScrollIntent = () => {
+      void finish(true);
+    };
+    const passiveOptions: AddEventListenerOptions = { passive: true };
+
+    window.addEventListener("wheel", finishOnScrollIntent, passiveOptions);
+    window.addEventListener("touchmove", finishOnScrollIntent, passiveOptions);
+    window.addEventListener("keydown", finishOnScrollIntent);
+
+    void logo.start({
+      opacity: [0, 1, 1],
+      scale: prefersReducedMotion ? 1 : [0.94, 1.025, 1],
+	      transition: {
+	        duration: prefersReducedMotion ? 0.2 : isMobile ? 0.9 : 1.18,
+	        ease: "easeOut",
+	      },
+    });
+
+    const timeoutId = window.setTimeout(
+      () => {
+        void finish(false);
+      },
+      prefersReducedMotion ? 520 : isMobile ? 1350 : 1750
+    );
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.removeEventListener("wheel", finishOnScrollIntent);
+      window.removeEventListener("touchmove", finishOnScrollIntent);
+      window.removeEventListener("keydown", finishOnScrollIntent);
+      logo.stop();
+      overlay.stop();
+    };
+  }, [finish, isMobile, logo, overlay, prefersReducedMotion]);
 
   return (
     <motion.div
@@ -67,11 +92,12 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
         src={navisenseLogo}
         animate={logo}
         initial={{
-          opacity: 1,
+          opacity: 0,
           left: "50%",
           top: "50%",
           x: "-50%",
-          y: "-50%"
+          y: "-50%",
+          scale: 0.94,
         }}
         style={logoStyle}
       />
@@ -79,7 +105,7 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
   );
 }
 
-const overlayStyle: React.CSSProperties = {
+const overlayStyle: CSSProperties = {
   position: "fixed",
   inset: 0,
   zIndex: 9999,
@@ -88,12 +114,14 @@ const overlayStyle: React.CSSProperties = {
     linear-gradient(115deg,#01042d 0%,#031a72 28%,#1b1f86 55%,#24106a 76%,#060122 100%)
   `,
   pointerEvents: "none",
+  willChange: "opacity",
 };
 
-const logoStyle: React.CSSProperties = {
+const logoStyle: CSSProperties = {
   position: "fixed",
   width: "min(38vw,420px)",
   height: "auto",
   transformOrigin: "center center",
-  willChange: "transform, filter, opacity"
+  filter: "drop-shadow(0 0 22px rgba(0,237,245,0.68))",
+  willChange: "opacity, transform",
 };

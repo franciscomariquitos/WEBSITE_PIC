@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { sectionIds, siteData, colors } from "../data/siteData";
-import { styles } from "../styles";
+import { withBaseUrl } from "../utils/assetUrl";
 
 const MobileNav: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -17,6 +17,7 @@ const MobileNav: React.FC = () => {
           fontSize: 24,
           padding: 6,
           cursor: "pointer",
+          position: "relative",
           zIndex: 120,
         }}
         onClick={() => setOpen(!open)}
@@ -29,14 +30,17 @@ const MobileNav: React.FC = () => {
             position: "fixed",
             top: 0,
             left: 0,
-            width: "100vw",
-            height: "100vh",
+            width: "100%",
+            height: "100svh",
             background: "rgba(6,12,58,0.96)",
             color: colors.cyan2,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
+            padding: "max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom))",
+            overflowY: "auto",
+            overscrollBehavior: "contain",
             zIndex: 110,
             transition: "background 0.3s",
           }}
@@ -59,6 +63,24 @@ const MobileNav: React.FC = () => {
               {item}
             </a>
           ))}
+          <a
+            href={withBaseUrl("proposal.pdf")}
+            download="NAVISense_Project_Proposal.pdf"
+            style={{
+              marginTop: 18,
+              padding: "12px 18px",
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.08)",
+              color: "#F8FAFC",
+              textDecoration: "none",
+              fontWeight: 600,
+              fontSize: 15,
+            }}
+            onClick={() => setOpen(false)}
+          >
+            Download Project Proposal
+          </a>
         </nav>
       )}
     </>
