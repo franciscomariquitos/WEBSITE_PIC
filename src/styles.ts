@@ -17,7 +17,7 @@ export function getStyles(isMobile: boolean): Record<string, CSSProperties> {
 	    fontFamily: '"Inter", "Helvetica Neue", Arial, sans-serif',
 	    position: "relative",
 	    isolation: "isolate",
-	    overflowX: "hidden",
+	    overflowX: "clip",
 	    padding: isMobile ? "0" : undefined,
 	  },
 	  backgroundStage: {

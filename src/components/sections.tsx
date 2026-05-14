@@ -92,13 +92,12 @@ export function Header() {
               </a>
             ))}
             <a
-              href={withBaseUrl("proposal.pdf")}
-              download="NAVISense_Project_Proposal.pdf"
+              href="#navicare"
               style={styles.downloadButton}
               tabIndex={0}
-              aria-label="Download Project Proposal"
+              aria-label="Open NaviCare monitor"
             >
-              Download Our Project Proposal
+              NaviCare
             </a>
           </nav>
         )}
@@ -284,6 +283,15 @@ export function HeroSection() {
         <motion.div style={styles.heroActions} variants={disableMotion ? undefined : fadeUp}>
           <motion.a href="#about" style={styles.scrollLink} variants={disableMotion ? undefined : fadeUp}>
             Scroll to explore <ArrowDown size={16} />
+          </motion.a>
+          <motion.a
+            href={withBaseUrl("proposal.pdf")}
+            download="NAVISense_Project_Proposal.pdf"
+            style={styles.heroGhostButton}
+            variants={disableMotion ? undefined : fadeUp}
+          >
+            <FileText size={16} />
+            Project proposal
           </motion.a>
         </motion.div>
       </motion.div>

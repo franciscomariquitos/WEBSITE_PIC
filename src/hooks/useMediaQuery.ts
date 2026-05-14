@@ -20,8 +20,9 @@ export function useMediaQuery(query: string): boolean {
     }
 
     const mediaQuery = window.matchMedia(query) as LegacyMediaQueryList;
-
-    setMatches(mediaQuery.matches);
+    const syncTimer = window.setTimeout(() => {
+      setMatches(mediaQuery.matches);
+    }, 0);
 
     const handleChange = (event: MediaQueryListEvent) => {
       setMatches(event.matches);
@@ -30,12 +31,18 @@ export function useMediaQuery(query: string): boolean {
     if (typeof mediaQuery.addEventListener === "function") {
       mediaQuery.addEventListener("change", handleChange);
 
-      return () => mediaQuery.removeEventListener("change", handleChange);
+      return () => {
+        window.clearTimeout(syncTimer);
+        mediaQuery.removeEventListener("change", handleChange);
+      };
     }
 
     mediaQuery.addListener?.(handleChange);
 
-    return () => mediaQuery.removeListener?.(handleChange);
+    return () => {
+      window.clearTimeout(syncTimer);
+      mediaQuery.removeListener?.(handleChange);
+    };
   }, [query]);
 
   return matches;

@@ -3,6 +3,44 @@ import react from '@vitejs/plugin-react'
 
 const basePath = process.env.VITE_BASE_PATH || '/~ist1106726/NAVISENSE/'
 
+function getManualChunk(id) {
+  if (!id.includes('node_modules')) return undefined
+
+  if (
+    id.includes('/node_modules/react/') ||
+    id.includes('/node_modules/react-dom/') ||
+    id.includes('/node_modules/scheduler/')
+  ) {
+    return 'react-vendor'
+  }
+
+  if (id.includes('/node_modules/framer-motion/') || id.includes('/node_modules/motion-')) {
+    return 'framer-motion'
+  }
+
+  if (id.includes('/node_modules/lucide-react/') || id.includes('/node_modules/lucide/')) {
+    return 'lucide-react'
+  }
+
+  if (id.includes('/node_modules/leaflet/')) {
+    return 'leaflet'
+  }
+
+  if (id.includes('/node_modules/three/')) {
+    return 'three'
+  }
+
+  if (
+    id.includes('/node_modules/@supabase/') ||
+    id.includes('/node_modules/iceberg-js/') ||
+    id.includes('/node_modules/tslib/')
+  ) {
+    return 'supabase'
+  }
+
+  return 'vendor'
+}
+
 export default defineConfig({
   plugins: [react()],
   base: basePath,
@@ -19,14 +57,10 @@ export default defineConfig({
       mangle: true,
     },
     reportCompressedSize: false,
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 650,
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('framer-motion')) return 'framer-motion';
-          if (id.includes('lucide-react')) return 'lucide-react';
-          if (id.includes('node_modules')) return 'vendor';
-        },
+        manualChunks: getManualChunk,
       },
     },
   },

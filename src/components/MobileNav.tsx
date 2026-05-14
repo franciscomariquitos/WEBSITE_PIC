@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { sectionIds, siteData, colors } from "../data/siteData";
-import { withBaseUrl } from "../utils/assetUrl";
 
 const MobileNav: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -64,8 +63,7 @@ const MobileNav: React.FC = () => {
             </a>
           ))}
           <a
-            href={withBaseUrl("proposal.pdf")}
-            download="NAVISense_Project_Proposal.pdf"
+            href="#navicare"
             style={{
               marginTop: 18,
               padding: "12px 18px",
@@ -79,7 +77,7 @@ const MobileNav: React.FC = () => {
             }}
             onClick={() => setOpen(false)}
           >
-            Download Project Proposal
+            NaviCare
           </a>
         </nav>
       )}

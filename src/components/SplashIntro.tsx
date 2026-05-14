@@ -50,7 +50,7 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
     const finishOnScrollIntent = () => {
       void finish(true);
     };
-    const passiveOptions: AddEventListenerOptions = { passive: true };
+    const passiveOptions = { passive: true };
 
     window.addEventListener("wheel", finishOnScrollIntent, passiveOptions);
     window.addEventListener("touchmove", finishOnScrollIntent, passiveOptions);
