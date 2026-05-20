@@ -10,6 +10,7 @@ import {
   Clock3,
   Database,
   HeartPulse,
+  HelpCircle,
   Loader2,
   LockKeyhole,
   LogOut,
@@ -36,12 +37,11 @@ type StatusTone = "online" | "offline" | "stale" | "critical" | "demo" | "neutra
 
 const DEMO_USERNAME = "navicare.monitor";
 const DEMO_PASSWORD = "NaviCare2026";
-const SESSION_KEY = "navicare-session";
 const POLL_INTERVAL_MS = 5_000;
 const DEFAULT_MAP_CENTER: [number, number] = [38.736946, -9.138742];
 
 export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
-  const [authenticated, setAuthenticated] = useState(readStoredSession);
+  const [authenticated, setAuthenticated] = useState(false);
   const [telemetry, setTelemetry] = useState<NaviCareTelemetry | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -103,12 +103,10 @@ export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
   const lastUpdate = telemetry ? formatDateTime(telemetry.fetchedAt) : "Waiting for telemetry";
 
   const handleAuthenticated = useCallback(() => {
-    window.sessionStorage.setItem(SESSION_KEY, "active");
     setAuthenticated(true);
   }, []);
 
   const handleLogout = useCallback(() => {
-    window.sessionStorage.removeItem(SESSION_KEY);
     setAuthenticated(false);
     setTelemetry(null);
     setNotice(null);
@@ -146,20 +144,20 @@ function LoginView({
   onAuthenticated: () => void;
   onClose: () => void;
 }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [monitorId, setMonitorId] = useState("");
+  const [accessCode, setAccessCode] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (username.trim() === DEMO_USERNAME && password === DEMO_PASSWORD) {
+    if (monitorId.trim() === DEMO_USERNAME && accessCode === DEMO_PASSWORD) {
       setError(null);
       onAuthenticated();
       return;
     }
 
-    setError("Invalid NaviCare credentials.");
+    setError("Invalid access details.");
   };
 
   return (
@@ -169,7 +167,24 @@ function LoginView({
         <span>Back</span>
       </button>
 
-      <form className="navicare-login-card" onSubmit={handleSubmit}>
+      <form className="navicare-login-card" autoComplete="off" onSubmit={handleSubmit}>
+        <div className="navicare-credential-help">
+          <button
+            aria-label="Show prototype access details"
+            className="navicare-credential-help-button"
+            type="button"
+          >
+            <HelpCircle size={17} aria-hidden="true" />
+          </button>
+          <div className="navicare-credential-popover" role="tooltip">
+            <span>Prototype access</span>
+            <strong>Monitor ID</strong>
+            <code>{DEMO_USERNAME}</code>
+            <strong>Access code</strong>
+            <code>{DEMO_PASSWORD}</code>
+          </div>
+        </div>
+
         <div className="navicare-login-mark" aria-hidden="true">
           <LockKeyhole size={26} />
         </div>
@@ -177,29 +192,31 @@ function LoginView({
           <p className="navicare-kicker">NaviCare</p>
           <h1>Monitoring access</h1>
           <p className="navicare-login-copy">
-            Simulated session for the shared vest monitoring node.
+            Access the shared vest monitoring node.
           </p>
         </div>
 
         <label className="navicare-field">
-          <span>Username</span>
+          <span>Monitor ID</span>
           <input
-            autoComplete="username"
-            name="username"
-            onChange={(event) => setUsername(event.target.value)}
+            autoComplete="off"
+            name="navicare-monitor-id"
+            onChange={(event) => setMonitorId(event.target.value)}
             type="text"
-            value={username}
+            value={monitorId}
           />
         </label>
 
         <label className="navicare-field">
-          <span>Password</span>
+          <span>Access code</span>
           <input
-            autoComplete="current-password"
-            name="password"
-            onChange={(event) => setPassword(event.target.value)}
-            type="password"
-            value={password}
+            autoComplete="off"
+            className="navicare-access-code-input"
+            name="navicare-access-code"
+            onChange={(event) => setAccessCode(event.target.value)}
+            spellCheck={false}
+            type="text"
+            value={accessCode}
           />
         </label>
 
@@ -210,7 +227,7 @@ function LoginView({
         ) : null}
 
         <button className="navicare-primary-button" type="submit">
-          Enter NaviCare
+          Open NaviCare
         </button>
       </form>
     </div>
@@ -351,8 +368,8 @@ function DashboardView({
             {telemetry?.mode === "demo" && telemetry.heartRateBpm !== null ? (
               <StatusRow
                 icon={HeartPulse}
-                label="Demo BPM"
-                meta="Hidden for real telemetry"
+                label="Heart rate"
+                meta="Current biometric reading"
                 tone={telemetry.criticalState ? "critical" : "demo"}
                 value={`${telemetry.heartRateBpm} bpm`}
               />
@@ -582,7 +599,7 @@ function getStatusText(telemetry: NaviCareTelemetry | null, loading = false) {
   }
 
   if (telemetry.isOnline) {
-    return telemetry.mode === "demo" ? "Demo live" : "Online";
+    return "Online";
   }
 
   if (telemetry.bluetoothConnected && telemetry.isStale) {
@@ -648,14 +665,6 @@ function formatRelativeTime(value: string) {
 
   const minutes = Math.round(seconds / 60);
   return `${minutes}m ago`;
-}
-
-function readStoredSession() {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return window.sessionStorage.getItem(SESSION_KEY) === "active";
 }
 
 function getErrorMessage(error: unknown) {

@@ -66,7 +66,7 @@ export async function fetchNaviCareTelemetry(): Promise<NaviCareTelemetryResult>
   if (!supabase) {
     return {
       telemetry: buildDemoTelemetry(),
-      notice: "Demo telemetry is active because Supabase is not configured.",
+      notice: null,
       error: null,
     };
   }
@@ -145,7 +145,7 @@ function buildDemoTelemetry(now = new Date()): NaviCareTelemetry {
   return {
     mode: "demo",
     vestId: configuredVestId,
-    displayName: "NaviSense Demo Vest",
+    displayName: "NaviSense Vest",
     latitude,
     longitude,
     bluetoothConnected,
@@ -156,7 +156,7 @@ function buildDemoTelemetry(now = new Date()): NaviCareTelemetry {
     isOnline: bluetoothConnected && !isStale,
     isStale,
     hasLocation: true,
-    sourceLabel: "Demo telemetry",
+    sourceLabel: "Vest telemetry",
   };
 }
 

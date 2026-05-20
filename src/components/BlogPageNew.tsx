@@ -2,6 +2,7 @@ import React from "react";
 import {
   Calendar,
   Download,
+  FileText,
   Newspaper,
   Search,
   X,
@@ -11,6 +12,16 @@ import { withBaseUrl } from "../utils/assetUrl";
 import { useResponsive } from "../context/ResponsiveContext";
 
 type BlogPost = (typeof siteData.updates)[number];
+type ActivePostMode = {
+  key: string;
+  mode: "summaryExpanded" | "reportReader";
+} | null;
+
+const BlogPdfViewer = React.lazy(() =>
+  import("./BlogPdfViewer").then((module) => ({
+    default: module.BlogPdfViewer,
+  }))
+);
 
 type MonthGroup = {
   key: string;
@@ -103,10 +114,12 @@ export const BlogPageNew = React.memo(function BlogPageNew({
   onPostSelected?: () => void;
 }) {
   const { disableMotion, isMobile } = useResponsive();
-  const [expandedPostKey, setExpandedPostKey] = React.useState<string | null>(null);
+  const [activePostMode, setActivePostMode] = React.useState<ActivePostMode>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
+  const shellRef = React.useRef<HTMLDivElement | null>(null);
   const postRefs = React.useRef<Record<string, HTMLElement | null>>({});
+  const reportReaderRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
 
   const allPosts = React.useMemo(
     () =>
@@ -151,6 +164,64 @@ export const BlogPageNew = React.memo(function BlogPageNew({
   const monthGroups = React.useMemo(() => groupPostsByMonth(filteredPosts), [filteredPosts]);
   const latestPost = filteredPosts[0] ?? allPosts[0] ?? null;
   const hasFilters = Boolean(searchQuery.trim() || selectedCategory);
+  const scrollElementIntoBlogView = React.useCallback(
+    (getElement: () => HTMLElement | null, delay = 70) => {
+      window.setTimeout(() => {
+        const element = getElement();
+
+        if (!element) {
+          return;
+        }
+
+        const scrollContainer = shellRef.current;
+        const elementRect = element.getBoundingClientRect();
+        const containerRect = scrollContainer?.getBoundingClientRect();
+        const viewportHeight = scrollContainer?.clientHeight ?? window.innerHeight;
+        const currentScrollTop = scrollContainer?.scrollTop ?? window.scrollY;
+        const elementTop = containerRect
+          ? elementRect.top - containerRect.top
+          : elementRect.top;
+        const topGutter = Math.max(72, viewportHeight * (isMobile ? 0.12 : 0.11));
+        const usableHeight = Math.max(220, viewportHeight - topGutter - 24);
+        const desiredTop =
+          elementRect.height < usableHeight
+            ? topGutter + (usableHeight - elementRect.height) / 2
+            : topGutter;
+        const targetY =
+          currentScrollTop +
+          elementTop -
+          desiredTop;
+
+        const scrollOptions = {
+          top: Math.max(0, targetY),
+          behavior: disableMotion ? "auto" : "smooth",
+        } as const;
+
+        if (scrollContainer) {
+          scrollContainer.scrollTo(scrollOptions);
+          return;
+        }
+
+        window.scrollTo(scrollOptions);
+      }, delay);
+    },
+    [disableMotion, isMobile]
+  );
+  const scrollPostIntoView = React.useCallback(
+    (postKey: string) => {
+      scrollElementIntoBlogView(() => postRefs.current[postKey] ?? null);
+    },
+    [scrollElementIntoBlogView]
+  );
+  const scrollReportIntoView = React.useCallback(
+    (postKey: string) => {
+      scrollElementIntoBlogView(
+        () => reportReaderRefs.current[postKey] ?? postRefs.current[postKey] ?? null,
+        140
+      );
+    },
+    [scrollElementIntoBlogView]
+  );
 
   React.useEffect(() => {
     if (!selectedPost) {
@@ -158,34 +229,26 @@ export const BlogPageNew = React.memo(function BlogPageNew({
     }
 
     const selectedKey = getPostKey(selectedPost);
-    setExpandedPostKey(selectedKey);
+    setActivePostMode({ key: selectedKey, mode: "summaryExpanded" });
     setSearchQuery("");
     setSelectedCategory(null);
     onPostSelected?.();
-
-    const timeoutId = window.setTimeout(() => {
-      postRefs.current[selectedKey]?.scrollIntoView({
-        behavior: disableMotion ? "auto" : "smooth",
-        block: "center",
-      });
-    }, 60);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [disableMotion, onPostSelected, selectedPost]);
+    scrollPostIntoView(selectedKey);
+  }, [onPostSelected, scrollPostIntoView, selectedPost]);
 
   React.useEffect(() => {
-    if (!expandedPostKey) {
+    if (!activePostMode) {
       return;
     }
 
     const stillVisible = filteredPosts.some(
-      (post) => getPostKey(post) === expandedPostKey
+      (post) => getPostKey(post) === activePostMode.key
     );
 
     if (!stillVisible) {
-      setExpandedPostKey(null);
+      setActivePostMode(null);
     }
-  }, [expandedPostKey, filteredPosts]);
+  }, [activePostMode, filteredPosts]);
 
   const shellStyle: React.CSSProperties = {
     position: "fixed",
@@ -210,7 +273,7 @@ export const BlogPageNew = React.memo(function BlogPageNew({
   };
 
   return (
-    <div style={shellStyle}>
+    <div ref={shellRef} style={shellStyle}>
       <div
         aria-hidden="true"
         style={{
@@ -582,9 +645,16 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                   <div style={{ display: "grid", gap: isMobile ? 12 : 14 }}>
                     {monthGroup.posts.map((post) => {
                       const postKey = getPostKey(post);
-                      const expanded = expandedPostKey === postKey;
+                      const activeMode =
+                        activePostMode?.key === postKey ? activePostMode.mode : null;
+                      const expanded = activeMode === "summaryExpanded";
+                      const reportReaderOpen = activeMode === "reportReader";
+                      const active = Boolean(activeMode);
                       const categoryColor = getCategoryColor(post.category);
                       const reportIsDownloadable = hasDownloadableReport(post);
+                      const reportUrl = reportIsDownloadable
+                        ? withBaseUrl(post.reportPdfUrl)
+                        : null;
                       const isLatest = latestPost
                         ? getPostKey(latestPost) === postKey
                         : false;
@@ -598,17 +668,17 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                           style={{
                             ...cardSurfaceStyle(isMobile),
                             padding: isMobile ? 16 : 20,
-                            border: expanded
+                            border: active
                               ? `1px solid ${categoryColor}30`
                               : "1px solid rgba(255, 255, 255, 0.08)",
-                            borderLeft: `2px solid ${categoryColor}${expanded ? "88" : "44"}`,
+                            borderLeft: `2px solid ${categoryColor}${active ? "88" : "44"}`,
                             borderRadius: isMobile ? 18 : 20,
-                            background: expanded
+                            background: active
                               ? "linear-gradient(160deg, rgba(255,255,255,0.054) 0%, rgba(255,255,255,0.024) 100%)"
                               : "linear-gradient(160deg, rgba(255,255,255,0.030) 0%, rgba(255,255,255,0.014) 100%)",
                             display: "grid",
                             gap: 14,
-                            boxShadow: expanded
+                            boxShadow: active
                               ? `0 18px 42px rgba(2, 6, 23, 0.16), 0 0 24px ${categoryColor}10`
                               : "0 12px 28px rgba(2, 6, 23, 0.10)",
                             transition:
@@ -708,16 +778,18 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                               {post.title}
                             </h3>
 
-                            <p
-                              style={{
-                                margin: 0,
-                                fontSize: isMobile ? 14.5 : 15,
-                                lineHeight: 1.74,
-                                color: "rgba(224, 228, 233, 0.76)",
-                              }}
-                            >
-                              {post.summary}
-                            </p>
+                            {!reportReaderOpen ? (
+                              <p
+                                style={{
+                                  margin: 0,
+                                  fontSize: isMobile ? 14.5 : 15,
+                                  lineHeight: 1.74,
+                                  color: "rgba(224, 228, 233, 0.76)",
+                                }}
+                              >
+                                {post.summary}
+                              </p>
+                            ) : null}
 
                             {expanded ? (
                               <div
@@ -741,81 +813,286 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                             ) : null}
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              flexWrap: "wrap",
-                              gap: isMobile ? 16 : 10,
-                              alignItems: "center",
-                            }}
-                          >
-                            <button
-                              onClick={() =>
-                                setExpandedPostKey((currentValue) =>
-                                  currentValue === postKey ? null : postKey
-                                )
-                              }
+                          {reportReaderOpen ? (
+                            <div
+                              ref={(element) => {
+                                reportReaderRefs.current[postKey] = element;
+                              }}
                               style={{
-                                padding: "8px 0",
-                                borderRadius: 999,
-                                border: "none",
-                                background: "transparent",
-                                color: categoryColor,
-                                fontWeight: 700,
-                                cursor: "pointer",
-                                fontSize: 13,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.08em",
-                                minHeight: isMobile ? 44 : undefined,
-                                display: "inline-flex",
-                                alignItems: "center",
+                                display: "grid",
+                                gap: 12,
+                                paddingTop: 2,
                               }}
                             >
-                              {expanded ? "Show less" : "Read more"}
-                            </button>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  gap: 12,
+                                  flexWrap: "wrap",
+                                  padding: isMobile ? "12px 12px" : "12px 14px",
+                                  borderRadius: 16,
+                                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                                  background:
+                                    "linear-gradient(135deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.020) 100%)",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    minWidth: 0,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    color: "#F8FAFC",
+                                    fontWeight: 800,
+                                    fontSize: 13,
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.08em",
+                                  }}
+                                >
+                                  <FileText size={16} color={categoryColor} />
+                                  Full report
+                                  <span
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      padding: "4px 8px",
+                                      borderRadius: 999,
+                                      border: `1px solid ${categoryColor}24`,
+                                      background: `${categoryColor}12`,
+                                      color: categoryColor,
+                                      fontSize: 11,
+                                      fontWeight: 800,
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {reportIsDownloadable ? "PDF attached" : "Preview"}
+                                  </span>
+                                </div>
 
-                            <a
-                              href={
-                                reportIsDownloadable
-                                  ? withBaseUrl(post.reportPdfUrl)
-                                  : undefined
-                              }
-                              download={reportIsDownloadable}
-                              aria-disabled={!reportIsDownloadable}
-                              title={
-                                reportIsDownloadable
-                                  ? "Download report"
-                                  : "Report will be available soon"
-                              }
-                              onClick={(event) => {
-                                if (!reportIsDownloadable) {
-                                  event.preventDefault();
-                                }
-                              }}
+                                <div
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: isMobile ? 12 : 14,
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  {reportUrl ? (
+                                    <a
+                                      href={reportUrl}
+                                      download
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: 7,
+                                        color: categoryColor,
+                                        textDecoration: "none",
+                                        fontSize: 12,
+                                        fontWeight: 800,
+                                        textTransform: "uppercase",
+                                        letterSpacing: "0.08em",
+                                      }}
+                                    >
+                                      <Download size={14} />
+                                      Download PDF
+                                    </a>
+                                  ) : null}
+
+                                  <button
+                                    type="button"
+                                    onClick={() => setActivePostMode(null)}
+                                    style={{
+                                      padding: 0,
+                                      border: "none",
+                                      background: "transparent",
+                                      color: "rgba(224, 228, 233, 0.72)",
+                                      cursor: "pointer",
+                                      fontSize: 12,
+                                      fontWeight: 800,
+                                      textTransform: "uppercase",
+                                      letterSpacing: "0.08em",
+                                    }}
+                                  >
+                                    Close report
+                                  </button>
+                                </div>
+                              </div>
+
+                              {reportUrl ? (
+                                <React.Suspense
+                                  fallback={
+                                    <div
+                                      style={{
+                                        minHeight: isMobile
+                                          ? "clamp(280px, calc(100svh - 220px), 560px)"
+                                          : "clamp(300px, calc(100svh - 250px), 700px)",
+                                        display: "grid",
+                                        placeItems: "center",
+                                        borderRadius: 16,
+                                        border: "1px solid rgba(95, 169, 232, 0.16)",
+                                        background:
+                                          "linear-gradient(145deg, rgba(2, 3, 38, 0.94) 0%, rgba(3, 27, 112, 0.54) 100%)",
+                                        color: "rgba(224, 228, 233, 0.78)",
+                                      }}
+                                    >
+                                      Loading report reader
+                                    </div>
+                                  }
+                                >
+                                  <BlogPdfViewer url={reportUrl} title={post.title} />
+                                </React.Suspense>
+                              ) : (
+                                <div
+                                  style={{
+                                    minHeight: isMobile
+                                      ? "clamp(280px, calc(100svh - 220px), 560px)"
+                                      : "clamp(300px, calc(100svh - 250px), 700px)",
+                                    display: "grid",
+                                    placeItems: "center",
+                                    padding: isMobile ? 18 : 24,
+                                    borderRadius: 16,
+                                    border: "1px solid rgba(255, 255, 255, 0.10)",
+                                    background:
+                                      "linear-gradient(145deg, rgba(248,250,252,0.92) 0%, rgba(226,232,240,0.86) 100%)",
+                                    boxShadow: "0 18px 36px rgba(2, 6, 23, 0.18)",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      width: "min(100%, 440px)",
+                                      minHeight: isMobile ? 280 : 380,
+                                      padding: isMobile ? 22 : 30,
+                                      borderRadius: 14,
+                                      background: "#F8FAFC",
+                                      color: "#0F172A",
+                                      boxShadow: "0 18px 42px rgba(15, 23, 42, 0.18)",
+                                      display: "grid",
+                                      alignContent: "start",
+                                      gap: 16,
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: 8,
+                                        color: categoryColor,
+                                        fontSize: 11,
+                                        fontWeight: 900,
+                                        textTransform: "uppercase",
+                                        letterSpacing: "0.12em",
+                                      }}
+                                    >
+                                      <FileText size={14} />
+                                      Report preview
+                                    </div>
+                                    <h4
+                                      style={{
+                                        margin: 0,
+                                        fontFamily: '"Syne", sans-serif',
+                                        fontSize: isMobile ? 24 : 32,
+                                        lineHeight: 1.05,
+                                        letterSpacing: "-0.04em",
+                                      }}
+                                    >
+                                      {post.title}
+                                    </h4>
+                                    <p
+                                      style={{
+                                        margin: 0,
+                                        color: "#475569",
+                                        fontSize: isMobile ? 13 : 14,
+                                        lineHeight: 1.65,
+                                      }}
+                                    >
+                                      The full PDF will render here once the report file is attached.
+                                    </p>
+                                    <div style={{ display: "grid", gap: 9, marginTop: 8 }}>
+                                      {[0.92, 0.78, 0.86, 0.62, 0.74].map((width, index) => (
+                                        <span
+                                          key={`${postKey}-placeholder-line-${index}`}
+                                          style={{
+                                            width: `${width * 100}%`,
+                                            height: 9,
+                                            borderRadius: 999,
+                                            background:
+                                              "linear-gradient(90deg, rgba(15,23,42,0.14), rgba(15,23,42,0.06))",
+                                          }}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div
                               style={{
-                                padding: "8px 0",
-                                borderRadius: 999,
-                                border: "none",
-                                background: "transparent",
-                                color: reportIsDownloadable
-                                  ? categoryColor
-                                  : "rgba(224, 228, 233, 0.50)",
-                                display: "inline-flex",
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: isMobile ? 16 : 10,
                                 alignItems: "center",
-                                gap: 8,
-                                textDecoration: "none",
-                                fontWeight: 700,
-                                fontSize: 13,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.08em",
-                                cursor: reportIsDownloadable ? "pointer" : "not-allowed",
-                                minHeight: isMobile ? 44 : undefined,
                               }}
                             >
-                              <Download size={15} />
-                              {reportIsDownloadable ? "Download report" : "Report coming soon"}
-                            </a>
-                          </div>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setActivePostMode((currentValue) =>
+                                    currentValue?.key === postKey &&
+                                    currentValue.mode === "summaryExpanded"
+                                      ? null
+                                      : { key: postKey, mode: "summaryExpanded" }
+                                  )
+                                }
+                                style={{
+                                  padding: "8px 0",
+                                  borderRadius: 999,
+                                  border: "none",
+                                  background: "transparent",
+                                  color: categoryColor,
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                  fontSize: 13,
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.08em",
+                                  minHeight: isMobile ? 44 : undefined,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                {expanded ? "Show less" : "Read more"}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActivePostMode({ key: postKey, mode: "reportReader" });
+                                  scrollReportIntoView(postKey);
+                                }}
+                                style={{
+                                  padding: "8px 0",
+                                  borderRadius: 999,
+                                  border: "none",
+                                  background: "transparent",
+                                  color: categoryColor,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                  fontWeight: 700,
+                                  fontSize: 13,
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.08em",
+                                  cursor: "pointer",
+                                  minHeight: isMobile ? 44 : undefined,
+                                }}
+                              >
+                                <FileText size={15} />
+                                {reportIsDownloadable ? "Read full report" : "Report preview"}
+                              </button>
+                            </div>
+                          )}
                         </article>
                       );
                     })}

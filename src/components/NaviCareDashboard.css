@@ -507,9 +507,120 @@
 }
 
 .navicare-login-card {
+  position: relative;
   width: min(100%, 430px);
   border-radius: 8px;
   padding: clamp(22px, 4vw, 34px);
+}
+
+.navicare-credential-help {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+}
+
+.navicare-credential-help-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(95, 169, 232, 0.18);
+  border-radius: 999px;
+  color: rgba(215, 226, 241, 0.78);
+  background: rgba(255, 255, 255, 0.045);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navicare-credential-help-button:hover,
+.navicare-credential-help-button:focus-visible {
+  border-color: rgba(95, 169, 232, 0.46);
+  color: var(--navicare-text-strong);
+  background: rgba(95, 169, 232, 0.1);
+  box-shadow: 0 0 18px rgba(95, 169, 232, 0.12);
+  outline: none;
+}
+
+.navicare-credential-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(250px, calc(100vw - 44px));
+  padding: 14px;
+  border: 1px solid rgba(95, 169, 232, 0.24);
+  border-radius: 8px;
+  color: rgba(215, 226, 241, 0.84);
+  background:
+    linear-gradient(160deg, rgba(8, 12, 42, 0.96), rgba(18, 24, 62, 0.92)),
+    rgba(2, 3, 38, 0.92);
+  box-shadow:
+    0 18px 36px rgba(2, 6, 23, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  display: grid;
+  gap: 7px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top right;
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+
+.navicare-credential-popover::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 13px;
+  width: 10px;
+  height: 10px;
+  border-left: 1px solid rgba(95, 169, 232, 0.24);
+  border-top: 1px solid rgba(95, 169, 232, 0.24);
+  background: rgba(8, 12, 42, 0.96);
+  transform: rotate(45deg);
+}
+
+.navicare-credential-help:hover .navicare-credential-popover,
+.navicare-credential-help:focus-within .navicare-credential-popover {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.navicare-credential-popover span {
+  color: var(--navicare-cyan);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.navicare-credential-popover strong {
+  margin-top: 3px;
+  color: var(--navicare-text-strong);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.navicare-credential-popover code {
+  padding: 8px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  color: #dff4ff;
+  background: rgba(2, 6, 23, 0.42);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .navicare-login-mark {
@@ -569,6 +680,11 @@
   box-shadow:
     0 0 0 3px rgba(95, 169, 232, 0.12),
     inset 0 0 18px rgba(95, 169, 232, 0.05);
+}
+
+.navicare-access-code-input {
+  -webkit-text-security: disc;
+  text-security: disc;
 }
 
 .navicare-form-error {
@@ -700,7 +816,7 @@
   }
 
   .navicare-map-panel {
-    min-height: 420px;
+    min-height: clamp(320px, 52svh, 420px);
   }
 
   .navicare-panel-heading {

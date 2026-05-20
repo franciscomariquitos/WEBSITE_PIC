@@ -19,15 +19,17 @@ import {
   Gauge,
   Lightbulb,
   Linkedin,
+  MapPinned,
   RadioTower,
   ShieldAlert,
+  Smartphone,
   CircuitBoard,
   Presentation,
   UserRound,
   Users
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { getFadeUp, getStaggerContainer } from "../animations";
+import { getFadeUp } from "../animations";
 import { sectionIds, siteData, colors } from "../data/siteData"
 import { Card } from "./ui"
 import { RevealImage } from "./RevealImage";
@@ -169,16 +171,16 @@ const trackerRoadmap = [
     period: "March-April",
     title: "Build",
     desc: "Prototype development, subsystem integration, and communications setup.",
+    state: "complete",
+  },
+  {
+    period: "May",
+    title: "Validate",
+    desc: "Prototype testing, poster work, latency checks, and reliability refinement.",
     state: "current",
   },
   {
-    period: "April-May",
-    title: "Validate",
-    desc: "Testing workflows, latency checks, and system refinement.",
-    state: "upcoming",
-  },
-  {
-    period: "May-June",
+    period: "Late May-June",
     title: "Showcase",
     desc: "Poster, demonstration video, and final presentation assets.",
     state: "upcoming",
@@ -248,53 +250,203 @@ function BlogCard({ post, onReadMore }: { post: (typeof siteData.updates)[number
 }
 
 export function HeroSection() {
-  const { disableMotion, isMobile, styles } = useResponsiveStyles();
-  const fadeUp = React.useMemo(() => getFadeUp(isMobile), [isMobile]);
-  const staggerContainer = React.useMemo(() => getStaggerContainer(isMobile), [isMobile]);
+  const { isMobile, styles } = useResponsiveStyles();
+
   return (
     <motion.section
       id="top"
       style={styles.heroSection}
-      variants={disableMotion ? undefined : staggerContainer}
-      initial={disableMotion ? false : "hidden"}
-      animate={disableMotion ? undefined : "show"}
+      initial={false}
+      animate={{ opacity: 1 }}
     >
-      <motion.div style={styles.heroInner} variants={disableMotion ? undefined : fadeUp}>
-        <motion.h1 style={styles.heroTitleSingleLine} variants={disableMotion ? undefined : fadeUp}>
-          NAVISense
-        </motion.h1>
+      <motion.div style={styles.heroProductGrid} initial={false} animate={{ opacity: 1 }}>
+        <motion.div style={styles.heroProductCopy} initial={false} animate={{ opacity: 1 }}>
+          <div style={styles.heroEyebrow}>
+            <span style={styles.heroEyebrowDot} />
+            Assistive wearable ecosystem
+          </div>
 
-        <motion.div style={styles.heroVestRow} variants={disableMotion ? undefined : fadeUp}>
-          <span style={styles.heroVestText}>Vest</span>
+          <h1 style={styles.heroProductTitle}>NAVISense Vest</h1>
 
-          <img
-            src={vesticon}
-            alt="NAVISense icon"
-            style={styles.heroVestIcon}
-            role="img"
-            aria-label="NAVISense icon"
-          />
+          <p style={styles.heroProductSubtitle}>{siteData.project.subtitle}</p>
+
+          <div style={{ ...styles.heroActions, justifyContent: isMobile ? "center" : "flex-start" }}>
+            <motion.a
+              href="#navicare"
+              style={styles.heroPrimaryButton}
+            >
+              <ShieldAlert size={17} />
+              Open NaviCare
+            </motion.a>
+
+            <motion.a
+              href={withBaseUrl("proposal.pdf")}
+              download="NAVISense_Project_Proposal.pdf"
+              style={styles.heroGhostButton}
+            >
+              <FileText size={16} />
+              Project proposal
+            </motion.a>
+
+            <motion.a
+              href="#ecosystem"
+              style={styles.scrollLink}
+            >
+              Explore system <ArrowDown size={16} />
+            </motion.a>
+          </div>
         </motion.div>
 
-        <motion.p style={styles.heroSubtitle} variants={disableMotion ? undefined : fadeUp}>
-          {siteData.project.subtitle}
-        </motion.p>
+        <motion.div style={styles.heroEcosystemVisual} initial={false} animate={{ opacity: 1 }}>
+          <div style={styles.heroVisualGlow} aria-hidden="true" />
 
-        <motion.div style={styles.heroActions} variants={disableMotion ? undefined : fadeUp}>
-          <motion.a href="#about" style={styles.scrollLink} variants={disableMotion ? undefined : fadeUp}>
-            Scroll to explore <ArrowDown size={16} />
-          </motion.a>
-          <motion.a
-            href={withBaseUrl("proposal.pdf")}
-            download="NAVISense_Project_Proposal.pdf"
-            style={styles.heroGhostButton}
-            variants={disableMotion ? undefined : fadeUp}
-          >
-            <FileText size={16} />
-            Project proposal
-          </motion.a>
+          <div style={styles.heroVisualHeader}>
+            <div>
+              <div style={styles.heroVisualLabel}>Ecosystem flow</div>
+              <div style={styles.heroVisualTitle}>Wearable to app to NaviCare</div>
+            </div>
+            <div style={styles.heroSignalPill}>
+              <span style={styles.heroSignalDot} />
+              Live link
+            </div>
+          </div>
+
+          <div style={styles.heroFlowGrid}>
+            <article style={{ ...styles.heroFlowNode, ...styles.heroWearableNode }}>
+              <div style={styles.heroFlowNodeHeader}>
+                <span style={styles.heroVisualLabel}>Wearable layer</span>
+                <RadioTower size={16} />
+              </div>
+              <div style={styles.heroVestStage}>
+                <img
+                  src={vesticon}
+                  alt="NAVISense vest icon"
+                  style={styles.heroVestIconLarge}
+                  role="img"
+                  aria-label="NAVISense vest icon"
+                />
+              </div>
+              <div style={styles.heroNodeFooter}>
+                <RadioTower size={15} />
+                Sensing + haptics
+              </div>
+            </article>
+
+            <div style={styles.heroFlowStack}>
+              <article style={{ ...styles.heroFlowNode, ...styles.heroFlowNodeCompact }}>
+                <div style={styles.heroFlowNodeHeader}>
+                  <span style={styles.heroVisualLabel}>Android bridge</span>
+                  <Smartphone size={16} />
+                </div>
+                <div style={styles.heroBridgeGraphic}>
+                  <div style={styles.heroBridgePerson}>
+                    <UserRound size={28} />
+                  </div>
+                  <span style={styles.heroBridgeSignal} />
+                  <div style={styles.heroBridgePhone}>
+                    <Smartphone size={30} />
+                    <span style={styles.heroPhoneStatusDot} />
+                  </div>
+                </div>
+                <div style={styles.heroNodeFooter}>
+                  <Smartphone size={15} />
+                  Location + status bridge
+                </div>
+              </article>
+
+              <article style={{ ...styles.heroFlowNode, ...styles.heroFlowNodeCompact, ...styles.heroNaviCareNode }}>
+                <div style={styles.heroNaviCareMapBackdrop} aria-hidden="true">
+                  <span style={styles.heroMapRegionA} />
+                  <span style={styles.heroMapRegionB} />
+                  <span style={styles.heroDashboardRoute} />
+                  <span style={styles.heroMapMarker} />
+                </div>
+                <div style={styles.heroFlowNodeHeader}>
+                  <span style={styles.heroVisualLabel}>NaviCare</span>
+                  <MapPinned size={16} />
+                </div>
+                <div style={styles.heroDashboardMap}>
+                  <span style={styles.heroMapRegionA} />
+                  <span style={styles.heroMapRegionB} />
+                  <span style={styles.heroDashboardRoute} />
+                  <span style={styles.heroMapMarker} />
+                </div>
+                <div style={styles.heroNodeFooter}>
+                  <Gauge size={15} />
+                  Remote monitoring view
+                </div>
+              </article>
+            </div>
+          </div>
+
         </motion.div>
       </motion.div>
+    </motion.section>
+  );
+}
+
+export function EcosystemSection() {
+  const { disableMotion, isMobile, styles } = useResponsiveStyles();
+  const fadeUp = React.useMemo(() => getFadeUp(isMobile), [isMobile]);
+
+  return (
+    <motion.section
+      id="ecosystem"
+      style={styles.sectionWrap}
+      variants={disableMotion ? undefined : fadeUp}
+      initial={disableMotion ? false : "hidden"}
+      whileInView={disableMotion ? undefined : "show"}
+      viewport={{ once: true, amount: isMobile ? 0.12 : 0.2 }}
+    >
+      <SectionHeading
+        eyebrow="How NAVISense works"
+        title="From sensing to support."
+        description="NAVISense connects the vest, Android app, shared telemetry, and NaviCare into one clear monitoring flow."
+      />
+
+      <div style={styles.ecosystemFlow}>
+        <div style={styles.ecosystemRail} aria-hidden="true" />
+        {siteData.ecosystem.map((step, index) => {
+          const Icon = step.icon;
+          const accent = index === 1 ? "#A88FFF" : index === 3 ? "#fb7185" : colors.cyan2;
+
+          return (
+            <article
+              key={step.title}
+              style={{
+                ...styles.ecosystemStep,
+                borderColor: `${accent}24`,
+              }}
+            >
+              <div style={styles.ecosystemStepTop}>
+                <div
+                  style={{
+                    ...styles.ecosystemStepIndex,
+                    color: accent,
+                    borderColor: `${accent}30`,
+                    background: `${accent}14`,
+                  }}
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </div>
+                <div
+                  style={{
+                    ...styles.iconChip,
+                    color: accent,
+                    background: `${accent}14`,
+                    border: `1px solid ${accent}26`,
+                    marginBottom: 0,
+                  }}
+                >
+                  <Icon size={19} />
+                </div>
+              </div>
+              <h3 style={{ ...styles.cardTitle, textAlign: "left" }}>{step.title}</h3>
+              <p style={{ ...styles.cardText, textAlign: "left", marginTop: 0 }}>{step.desc}</p>
+            </article>
+          );
+        })}
+      </div>
     </motion.section>
   );
 }
@@ -466,15 +618,7 @@ export function PartnersSection() {
   );
 
   function getPartnerDescription(partner: (typeof siteData.partners)[number]) {
-    if (partner.desc !== "Short description or role in the project.") {
-      return partner.desc;
-    }
-
-    if (partner.type === "Institutional Partner") {
-      return "Academic support and a stronger foundation for the development path.";
-    }
-
-    return "Accessibility-focused feedback grounded in real use cases.";
+    return partner.desc;
   }
 
   return (
@@ -690,15 +834,23 @@ export function TrackerSection() {
       "In Progress": [],
       "To Do": [],
       Done: [],
-      Delayed: [],
     };
-    siteData.tracker.forEach((item) => groups[item.status].push(item));
+    siteData.tracker.forEach((item) => {
+      if (!groups[item.status]) {
+        groups[item.status] = [];
+      }
+
+      groups[item.status].push(item);
+    });
     return groups;
   }, []);
   const totalTasks = siteData.tracker.length;
   const overallProgress = Math.round(
     siteData.tracker.reduce((total, item) => total + item.progress, 0) / totalTasks
   );
+  const visibleTrackerItems = siteData.tracker
+    .filter((item) => item.status !== "Done")
+    .slice(0, 4);
   const trackerStats = [
     {
       label: "Milestones done",
@@ -711,12 +863,6 @@ export function TrackerSection() {
       value: `${groupedTracker["In Progress"].length}`,
       icon: Clock3,
       accent: "#a5f3fc",
-    },
-    {
-      label: "Delayed",
-      value: `${groupedTracker.Delayed.length}`,
-      icon: AlertTriangle,
-      accent: "#fda4af",
     },
   ];
   const trackerBodyTextStyle: React.CSSProperties = {
@@ -868,7 +1014,7 @@ export function TrackerSection() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
                 gap: 12,
                 alignContent: "start",
               }}
@@ -1007,7 +1153,7 @@ export function TrackerSection() {
                 letterSpacing: "-0.03em",
               }}
             >
-              Milestones
+              Current milestones
             </div>
 
             <div
@@ -1021,12 +1167,12 @@ export function TrackerSection() {
                 fontWeight: 700,
               }}
             >
-              {totalTasks} tracked items
+              {visibleTrackerItems.length} active items
             </div>
           </div>
 
           <div style={{ display: "grid", gap: 14 }}>
-            {siteData.tracker.map((task) => {
+            {visibleTrackerItems.map((task) => {
               const tone = getTrackerStatusTone(task.status);
 
               return (
@@ -1503,13 +1649,15 @@ export function TeamSection() {
                   </a>
                   ) : null}
 
-                  <a
-                    href={`mailto:${member.email}`}
-                    style={styles.teamIconLink}
-                    aria-label={`${member.name} email`}
-                  >
-                    <Mail size={16} />
-                  </a>
+                  {member.email ? (
+                    <a
+                      href={`mailto:${member.email}`}
+                      style={styles.teamIconLink}
+                      aria-label={`${member.name} email`}
+                    >
+                      <Mail size={16} />
+                    </a>
+                  ) : null}
 
                   {hasExternalLink(member.linkedin) ? (
                     <a
@@ -1850,38 +1998,52 @@ export function ContactSection() {
               Contact
             </div>
             <div style={{ display: "grid", gap: 14, justifyItems: isMobile ? "center" : "start" }}>
-              <a
-                href={`mailto:${siteData.project.email}`}
-                style={{
-                  color: "#F8FAFC",
-                  textDecoration: "none",
-                  fontSize: isMobile ? 14 : 15,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 10,
-                  lineHeight: 1.35,
-                  transition: "color 0.2s ease",
-                  maxWidth: "100%",
-                  minWidth: 0,
-                  overflowWrap: "anywhere",
-                }}
-                onMouseEnter={(event) => {
-                  event.currentTarget.style.color = colors.cyan2;
-                }}
-                onMouseLeave={(event) => {
-                  event.currentTarget.style.color = "#F8FAFC";
-                }}
-              >
-                <Mail size={16} style={{ flexShrink: 0 }} />
-                <span
+              {siteData.project.email ? (
+                <a
+                  href={`mailto:${siteData.project.email}`}
                   style={{
+                    color: "#F8FAFC",
+                    textDecoration: "none",
+                    fontSize: isMobile ? 14 : 15,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 10,
+                    lineHeight: 1.35,
+                    transition: "color 0.2s ease",
+                    maxWidth: "100%",
                     minWidth: 0,
                     overflowWrap: "anywhere",
                   }}
+                  onMouseEnter={(event) => {
+                    event.currentTarget.style.color = colors.cyan2;
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.color = "#F8FAFC";
+                  }}
                 >
-                  {siteData.project.email}
-                </span>
-              </a>
+                  <Mail size={16} style={{ flexShrink: 0 }} />
+                  <span
+                    style={{
+                      minWidth: 0,
+                      overflowWrap: "anywhere",
+                    }}
+                  >
+                    {siteData.project.email}
+                  </span>
+                </a>
+              ) : (
+                <p
+                  style={{
+                    margin: 0,
+                    color: "rgba(224, 228, 233, 0.72)",
+                    fontSize: isMobile ? 14 : 15,
+                    lineHeight: 1.55,
+                    maxWidth: 250,
+                  }}
+                >
+                  Contact details are shared through the project team channels.
+                </p>
+              )}
               <div
                 style={{
                   display: "flex",
@@ -1900,13 +2062,15 @@ export function ContactSection() {
                     <Linkedin size={20} />
                   </a>
                 ) : null}
-                <a
-                  href={`mailto:${siteData.project.email}`}
-                  style={{ color: colors.cyan2, opacity: 0.84, transition: "opacity 0.2s ease" }}
-                  aria-label="Email"
-                >
-                  <Mail size={20} />
-                </a>
+                {siteData.project.email ? (
+                  <a
+                    href={`mailto:${siteData.project.email}`}
+                    style={{ color: colors.cyan2, opacity: 0.84, transition: "opacity 0.2s ease" }}
+                    aria-label="Email"
+                  >
+                    <Mail size={20} />
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>

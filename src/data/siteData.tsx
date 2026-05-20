@@ -1,9 +1,12 @@
 import {
+  Activity,
   CheckCircle2,
   Cpu,
   Globe,
   MapPinned,
   Radio,
+  ShieldAlert,
+  Smartphone,
   Sparkles,
 } from "lucide-react";
 
@@ -21,10 +24,11 @@ export const colors = {
 
 export const sectionIds = {
   About: "about",
-  Partners: "partners",
-  Blog: "updates",
+  "How it works": "ecosystem",
   Tracker: "tracker",
+  Partners: "partners",
   Team: "team",
+  Blog: "updates",
   Contact: "contact",
 };
 
@@ -38,12 +42,34 @@ export const siteData = {
       "Navigation and Awareness",
     ],
     subtitle:
-      "A multisensory assistive vest combining spatial sensing, haptic feedback, and connected monitoring for safer navigation.",
-    email: "team@navisense.example",
+      "A connected assistive vest that senses the environment, guides movement through haptic feedback, and links critical status to NaviCare monitoring.",
+    email: "",
     linkedin: "",
     acknowledgements: "Instituto Superior Tecnico - Student Innovation Project",
   },
-  nav: ["About", "Team", "Partners", "Tracker", "Blog", "Contact"],
+  nav: ["About", "How it works", "Tracker", "Partners", "Team", "Blog", "Contact"],
+  ecosystem: [
+    {
+      icon: Radio,
+      title: "Vest senses the environment",
+      desc: "Depth sensing and embedded electronics interpret nearby obstacles and movement context.",
+    },
+    {
+      icon: Activity,
+      title: "Haptic feedback guides movement",
+      desc: "Directional vibration cues help the user react without relying on visual information.",
+    },
+    {
+      icon: Smartphone,
+      title: "Android app bridges location/status",
+      desc: "The phone contributes location and passes vest state into the shared data layer.",
+    },
+    {
+      icon: ShieldAlert,
+      title: "NaviCare monitors critical states",
+      desc: "The dashboard surfaces connection, location, and emergency state for remote awareness.",
+    },
+  ],
   about: {
     problem:
       "People with visual impairments and reduced mobility often navigate complex environments with too little feedback, increasing collisions, disorientation, and loss of autonomy.",
@@ -112,26 +138,14 @@ export const siteData = {
     {
       name: "Instituto Superior Tecnico",
       type: "Institutional Partner",
-      desc: "Short description or role in the project.",
-      logo: "PN",
+      desc: "Academic context, project structure, and presentation support for the development path.",
+      logo: "IST",
     },
     {
       name: "Bengala Magica",
       type: "Technical Partner",
-      desc: "Short description or role in the project.",
-      logo: "TP",
-    },
-    {
-      name: "Partner Name",
-      type: "Community Partner",
-      desc: "Short description or role in the project.",
-      logo: "CP",
-    },
-    {
-      name: "Partner Name",
-      type: "Support Partner",
-      desc: "Short description or role in the project.",
-      logo: "SP",
+      desc: "Accessibility-focused perspective and feedback grounded in real mobility needs.",
+      logo: "BM",
     },
   ],
   updates: [
@@ -143,8 +157,8 @@ export const siteData = {
       content:
         "We successfully contacted and organized a meeting with the Bengala Magica association. We look forward to seeing the results of this collaboration. On the downside, we still have not been able to successfully contact any firefighters for collaboration.",
       author: "Francisco",
-      reportPdfUrl: "reports/bengala-magica-partnership.pdf",
-      reportAvailable: false,
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
     },
     {
       title: "Supabase Integration for Shared Data",
@@ -155,8 +169,8 @@ export const siteData = {
       content:
         "After discussing with Daniel, I searched for a simple solution to create and manage a shared database for both the website and my app. I discovered Supabase, which meets all our needs: it allows easy database setup through its web interface and provides an HTTPS API for communication and management. This means we can use standard GET and POST requests for data exchange. The free tier is more than sufficient for our requirements, making it an ideal choice for our project.",
       author: "Frederico",
-      reportPdfUrl: "reports/supabase-integration.pdf",
-      reportAvailable: false,
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
     },
     {
       title: "Website and Blog Launch",
@@ -167,8 +181,8 @@ export const siteData = {
       content:
         "We designed our website to be the landing page for the project, featuring sections for project presentation, overall specifications, and team introduction. We have also created a blog system so visitors can follow the chronological development of the project. Additionally, we integrated Google Analytics to help our team monitor website access frequency. The website still feels raw, but the foundation is now in place.",
       author: "Daniel",
-      reportPdfUrl: "reports/website-launch.pdf",
-      reportAvailable: false,
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
     },
     {
       title: "Prototype Development Started",
@@ -179,8 +193,8 @@ export const siteData = {
       content:
         "We started putting together the actual prototype! We began by selecting sensors based on functionality and available budget. We also started planning the data flow throughout the system, focusing more on vest-to-app communication.",
       author: "Francisco",
-      reportPdfUrl: "reports/prototype-development.pdf",
-      reportAvailable: false,
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
     },
     {
       title: "Website Improvements and System Requirements",
@@ -191,8 +205,8 @@ export const siteData = {
       content:
         "After comparing our website to real-world projects, I decided to update its visual appeal for greater engagement. Frederico and I discussed the communication between the website and the app, agreeing on using a shared database. We also reached out to organizations focused on visual impairment for feedback, and attempted to contact firefighters to improve the NAVISense vest performance aspect, though we have not received a response yet.",
       author: "Daniel",
-      reportPdfUrl: "reports/website-improvements.pdf",
-      reportAvailable: false,
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
     },
   ],
   tracker: [
@@ -216,33 +230,33 @@ export const siteData = {
       title: "Prototype Development",
       owner: "Engineering",
       priority: "High",
-      status: "In Progress",
+      status: "Done",
       due: "2026-04-12",
-      progress: 62,
+      progress: 100,
     },
     {
       title: "Prototype Testing",
       owner: "Validation",
       priority: "High",
       status: "In Progress",
-      due: "2026-05-05",
-      progress: 34,
+      due: "2026-05-24",
+      progress: 72,
     },
     {
       title: "Poster Design",
       owner: "Tiago",
       priority: "Medium",
-      status: "To Do",
-      due: "2026-05-18",
-      progress: 10,
+      status: "In Progress",
+      due: "2026-05-24",
+      progress: 55,
     },
     {
       title: "Demonstration Video",
       owner: "David",
       priority: "Medium",
-      status: "Delayed",
-      due: "2026-05-25",
-      progress: 20,
+      status: "In Progress",
+      due: "2026-05-31",
+      progress: 42,
     },
   ],
   roadmap: [
@@ -257,20 +271,20 @@ export const siteData = {
       phase: "Phase 02",
       title: "Build",
       period: "March-April",
-      state: "current",
+      state: "complete",
       desc: "Prototype development, subsystem integration, and communications setup.",
     },
     {
       phase: "Phase 03",
       title: "Validate",
-      period: "April-May",
-      state: "upcoming",
-      desc: "Range testing, latency measurements, reliability checks, and system refinement.",
+      period: "May",
+      state: "current",
+      desc: "Prototype testing, latency measurements, reliability checks, and system refinement.",
     },
     {
       phase: "Phase 04",
       title: "Showcase",
-      period: "May-June",
+      period: "Late May-June",
       state: "upcoming",
       desc: "Poster, demonstration video, final validation, and public presentation.",
     },
@@ -281,7 +295,7 @@ export const siteData = {
       role: "4G Integration, Public Relations and Data Transmission",
       initials: "FM",
       cv: "#",
-      email: "francisco@example.com",
+      email: "",
       linkedin: "#",
     },
     {
@@ -289,7 +303,7 @@ export const siteData = {
       role: "Vest Design, Sensor Choice and Sensor Position",
       initials: "RB",
       cv: "#",
-      email: "raquel@example.com",
+      email: "",
       linkedin: "#",
     },
     {
@@ -297,7 +311,7 @@ export const siteData = {
       role: "Website Design, Dashboard Design and Dashboard Elements",
       initials: "DK",
       cv: "#",
-      email: "daniel@example.com",
+      email: "",
       linkedin: "#",
     },
     {
@@ -305,7 +319,7 @@ export const siteData = {
       role: "Demonstration Video, Data Transmission and Data Acquisition",
       initials: "DR",
       cv: "#",
-      email: "david@example.com",
+      email: "",
       linkedin: "#",
     },
     {
@@ -313,7 +327,7 @@ export const siteData = {
       role: "Pitch Deck, Vest Design and Poster Design",
       initials: "TP",
       cv: "#",
-      email: "tiago@example.com",
+      email: "",
       linkedin: "#",
     },
     {
@@ -321,7 +335,7 @@ export const siteData = {
       role: "Dashboard Programming, Dashboard Design and Dashboard Elements",
       initials: "FP",
       cv: "#",
-      email: "frederico@example.com",
+      email: "",
       linkedin: "#",
     },
   ],

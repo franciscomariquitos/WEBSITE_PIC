@@ -5,6 +5,7 @@ import { SplashIntro } from "./components/SplashIntro";
 import {
   AboutSection,
   ContactSection,
+  EcosystemSection,
   Header,
   HeroSection,
   PartnersSection,
@@ -220,9 +221,10 @@ export default function App() {
               <HeroSection />
             )}
             <AboutSection />
-            <TeamSection />
-            <PartnersSection />
+            <EcosystemSection />
             <TrackerSection />
+            <PartnersSection />
+            <TeamSection />
             <UpdatesSection
               onOpenBlog={handleOpenBlog}
               onSelectPost={setSelectedPost}

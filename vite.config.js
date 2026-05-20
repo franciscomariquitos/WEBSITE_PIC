@@ -30,6 +30,10 @@ function getManualChunk(id) {
     return 'three'
   }
 
+  if (id.includes('/node_modules/pdfjs-dist/')) {
+    return 'pdfjs'
+  }
+
   if (
     id.includes('/node_modules/@supabase/') ||
     id.includes('/node_modules/iceberg-js/') ||

@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 const defaultIsMobile =
   typeof window !== "undefined" &&
   typeof window.matchMedia === "function" &&
-  window.matchMedia("(max-width: 768px)").matches;
+  window.matchMedia("(max-width: 980px)").matches;
 
 export function getStyles(isMobile: boolean): Record<string, CSSProperties> {
   return {
@@ -154,8 +154,9 @@ navDesktop: {
   display: "flex",
   justifyContent: "flex-end",
   alignItems: "center",
-  gap: 24,
-  flexWrap: "wrap",
+  gap: "clamp(9px, 1.4vw, 18px)",
+  flexWrap: "nowrap",
+  maxWidth: "calc(100% - 170px)",
 },
 
 brandTextOnly: {
@@ -231,13 +232,14 @@ heroVestText: {
 navLink: {
   color: "#F8FAFC",
   fontFamily: '"Syne", sans-serif',
-  fontSize: 18,
+  fontSize: "clamp(0.82rem, 1.2vw, 1rem)",
   textDecoration: "none",
   fontWeight: 600,
   opacity: 0.95,
   position: "relative",
   paddingBottom: 0,
   display: "inline-block",
+  whiteSpace: "nowrap",
   borderBottom: "1px solid rgba(95, 169, 232, 0.70)",
 },
 
@@ -248,15 +250,588 @@ downloadButton: {
   background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%)",
   border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: 999,
-  padding: "12px 20px",
+  padding: "clamp(9px, 1.1vw, 11px) clamp(12px, 1.5vw, 17px)",
   fontFamily: '"Syne", sans-serif',
   fontWeight: 600,
-  fontSize: 16,
+  fontSize: "clamp(0.82rem, 1.2vw, 0.94rem)",
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
   whiteSpace: "nowrap",
   boxShadow: "0 10px 20px rgba(2, 6, 23, 0.12)",
+},
+
+heroProductGrid: {
+  width: "100%",
+  maxWidth: 1240,
+  minHeight: isMobile ? undefined : "calc(100vh - 150px)",
+  display: "grid",
+  gridTemplateColumns: isMobile
+    ? "1fr"
+    : "minmax(0, 0.95fr) minmax(430px, 0.82fr)",
+  gap: isMobile ? 34 : 56,
+  alignItems: "center",
+},
+
+heroProductCopy: {
+  minWidth: 0,
+  display: "grid",
+  justifyItems: isMobile ? "center" : "start",
+  textAlign: isMobile ? "center" : "left",
+  gap: isMobile ? 14 : 16,
+},
+
+heroProductTitle: {
+  margin: 0,
+  maxWidth: isMobile ? 640 : 720,
+  fontFamily: '"Syne", sans-serif',
+  fontWeight: 700,
+  fontSize: "clamp(3.3rem, 8.1vw, 7.4rem)",
+  lineHeight: 0.92,
+  letterSpacing: "-0.062em",
+  color: "#F8FAFC",
+  textShadow: "0 0 24px rgba(95, 169, 232, 0.12)",
+},
+
+heroProductSubtitle: {
+  margin: 0,
+  maxWidth: 650,
+  color: "rgba(224, 228, 233, 0.82)",
+  fontSize: "clamp(1rem, 1.55vw, 1.22rem)",
+  lineHeight: 1.68,
+  fontWeight: 500,
+},
+
+heroPrimaryButton: {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 9,
+  padding: isMobile ? "12px 17px" : "13px 20px",
+  borderRadius: 999,
+  border: "1px solid rgba(95, 169, 232, 0.32)",
+  background:
+    "linear-gradient(135deg, rgba(95, 169, 232, 0.24) 0%, rgba(47, 44, 143, 0.22) 100%)",
+  color: "#F8FAFC",
+  textDecoration: "none",
+  fontSize: isMobile ? 14 : 15,
+  fontWeight: 700,
+  boxShadow: "0 18px 32px rgba(2, 6, 23, 0.20), inset 0 1px 0 rgba(255,255,255,0.08)",
+},
+
+heroEcosystemVisual: {
+  position: "relative",
+  minHeight: isMobile ? 0 : 540,
+  padding: isMobile ? 18 : 24,
+  borderRadius: isMobile ? 24 : 28,
+  border: "1px solid rgba(255, 255, 255, 0.10)",
+  background:
+    "linear-gradient(150deg, rgba(8, 16, 54, 0.66) 0%, rgba(14, 24, 78, 0.52) 46%, rgba(29, 24, 92, 0.48) 100%)",
+  boxShadow:
+    "0 28px 60px rgba(2, 6, 23, 0.24), inset 0 1px 0 rgba(255,255,255,0.06)",
+  overflow: "hidden",
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gridTemplateRows: "auto 1fr",
+  gap: isMobile ? 16 : 18,
+  alignItems: "stretch",
+},
+
+heroVisualGlow: {
+  position: "absolute",
+  inset: "-24% -20%",
+  background:
+    "radial-gradient(circle at 32% 42%, rgba(95, 169, 232, 0.20) 0%, rgba(95,169,232,0.08) 22%, transparent 44%), radial-gradient(circle at 82% 20%, rgba(168, 143, 255, 0.18) 0%, rgba(168,143,255,0.06) 24%, transparent 46%)",
+  pointerEvents: "none",
+},
+
+heroVisualHeader: {
+  position: "relative",
+  zIndex: 2,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 14,
+  flexWrap: "wrap",
+  paddingBottom: isMobile ? 4 : 2,
+},
+
+heroVisualTitle: {
+  marginTop: 5,
+  color: "#F8FAFC",
+  fontFamily: '"Syne", sans-serif',
+  fontSize: isMobile ? 22 : 25,
+  fontWeight: 700,
+  lineHeight: 1,
+  letterSpacing: "-0.03em",
+},
+
+heroSignalPill: {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+  padding: "8px 11px",
+  borderRadius: 999,
+  border: "1px solid rgba(95, 169, 232, 0.20)",
+  background: "rgba(95, 169, 232, 0.10)",
+  color: "#cbe7fb",
+  fontSize: 12,
+  fontWeight: 800,
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+},
+
+heroSignalDot: {
+  width: 8,
+  height: 8,
+  borderRadius: 999,
+  background: colors.cyan2,
+  boxShadow: "0 0 16px rgba(95, 169, 232, 0.74)",
+},
+
+heroVisualBody: {
+  position: "relative",
+  zIndex: 1,
+  minWidth: 0,
+  display: "grid",
+  gridTemplateColumns: isMobile ? "1fr" : "0.86fr 1fr",
+  gap: isMobile ? 16 : 22,
+  alignItems: "center",
+},
+
+heroFlowGrid: {
+  position: "relative",
+  zIndex: 1,
+  minWidth: 0,
+  display: "grid",
+  gridTemplateColumns: isMobile
+    ? "1fr"
+    : "minmax(180px, 0.92fr) minmax(0, 1.08fr)",
+  gap: isMobile ? 12 : 14,
+  alignItems: "stretch",
+},
+
+heroFlowNode: {
+  position: "relative",
+  minWidth: 0,
+  minHeight: isMobile ? 0 : 0,
+  padding: isMobile ? 16 : 13,
+  borderRadius: 20,
+  border: "1px solid rgba(95, 169, 232, 0.14)",
+  background:
+    "linear-gradient(168deg, rgba(255,255,255,0.070) 0%, rgba(255,255,255,0.026) 58%, rgba(95,169,232,0.035) 100%)",
+  boxShadow:
+    "0 18px 34px rgba(2, 6, 23, 0.16), inset 0 1px 0 rgba(255,255,255,0.06)",
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gridTemplateRows: "auto minmax(88px, 1fr) auto",
+  gap: isMobile ? 12 : 10,
+  alignItems: "stretch",
+  overflow: "hidden",
+},
+
+heroWearableNode: {
+  minHeight: isMobile ? 0 : 300,
+  padding: isMobile ? 16 : 16,
+},
+
+heroFlowNodeCompact: {
+  minHeight: isMobile ? 0 : 144,
+  gridTemplateRows: "auto minmax(74px, 1fr) auto",
+},
+
+heroFlowStack: {
+  minWidth: 0,
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gridTemplateRows: isMobile ? "auto auto" : "1fr 1fr",
+  gap: isMobile ? 12 : 12,
+},
+
+heroFlowNodeHeader: {
+  position: "relative",
+  zIndex: 1,
+  minWidth: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 10,
+  color: colors.cyan2,
+},
+
+heroVestStage: {
+  position: "relative",
+  zIndex: 1,
+  minHeight: isMobile ? 104 : 168,
+  display: "grid",
+  placeItems: "center",
+  borderRadius: 18,
+  border: "1px solid rgba(255,255,255,0.07)",
+  background:
+    "radial-gradient(circle at 50% 42%, rgba(95,169,232,0.20) 0%, rgba(95,169,232,0.06) 42%, transparent 72%)",
+},
+
+heroBridgeGraphic: {
+  position: "relative",
+  zIndex: 1,
+  minHeight: isMobile ? 104 : 74,
+  display: "grid",
+  gridTemplateColumns: "1fr auto 1fr",
+  alignItems: "center",
+  gap: isMobile ? 12 : 8,
+  padding: isMobile ? "10px 12px" : "8px 6px",
+  borderRadius: 18,
+  border: "1px solid rgba(255,255,255,0.07)",
+  background:
+    "radial-gradient(circle at 50% 50%, rgba(168,143,255,0.16) 0%, rgba(95,169,232,0.05) 48%, transparent 74%)",
+},
+
+heroBridgePerson: {
+  justifySelf: "end",
+  width: isMobile ? 56 : 46,
+  height: isMobile ? 56 : 46,
+  borderRadius: 18,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "#F8FAFC",
+  border: "1px solid rgba(95,169,232,0.20)",
+  background: "rgba(95,169,232,0.12)",
+  boxShadow: "0 12px 24px rgba(2,6,23,0.18)",
+},
+
+heroBridgePhone: {
+  position: "relative",
+  justifySelf: "start",
+  width: isMobile ? 56 : 46,
+  height: isMobile ? 56 : 46,
+  borderRadius: 18,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: colors.cyan2,
+  border: "1px solid rgba(168,143,255,0.22)",
+  background: "rgba(168,143,255,0.11)",
+  boxShadow: "0 12px 24px rgba(2,6,23,0.18)",
+},
+
+heroBridgeSignal: {
+  width: isMobile ? 38 : 28,
+  height: 2,
+  borderRadius: 999,
+  background:
+    "linear-gradient(90deg, rgba(95,169,232,0.22), rgba(95,169,232,0.86), rgba(168,143,255,0.30))",
+  boxShadow: "0 0 16px rgba(95,169,232,0.34)",
+},
+
+heroPhoneStatusDot: {
+  position: "absolute",
+  right: 10,
+  top: 10,
+  width: 8,
+  height: 8,
+  borderRadius: 999,
+  background: colors.cyan2,
+  boxShadow: "0 0 12px rgba(95,169,232,0.80)",
+},
+
+heroVestNode: {
+  position: "relative",
+  zIndex: 1,
+  minWidth: 0,
+  display: "grid",
+  justifyItems: "center",
+  gap: 14,
+  padding: isMobile ? 18 : 22,
+  borderRadius: 24,
+  border: "1px solid rgba(95, 169, 232, 0.16)",
+  background:
+    "radial-gradient(circle at 50% 32%, rgba(95,169,232,0.16) 0%, rgba(95,169,232,0.035) 40%, transparent 66%), linear-gradient(180deg, rgba(255,255,255,0.072) 0%, rgba(255,255,255,0.026) 100%)",
+  boxShadow:
+    "0 18px 34px rgba(2, 6, 23, 0.16), inset 0 1px 0 rgba(255,255,255,0.06)",
+},
+
+heroVisualLabel: {
+  color: colors.cyan2,
+  fontSize: 11,
+  fontWeight: 800,
+  textTransform: "uppercase",
+  letterSpacing: "0.14em",
+},
+
+heroVestIconLarge: {
+  width: isMobile ? 124 : 132,
+  height: "auto",
+  display: "block",
+  filter: "drop-shadow(0 0 24px rgba(95, 169, 232, 0.32))",
+},
+
+heroNodeFooter: {
+  position: "relative",
+  zIndex: 1,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  padding: isMobile ? "8px 12px" : "8px 10px",
+  borderRadius: 999,
+  border: "1px solid rgba(255,255,255,0.09)",
+  background: "rgba(255,255,255,0.045)",
+  color: "rgba(224, 228, 233, 0.82)",
+  fontSize: isMobile ? 13 : 12,
+  fontWeight: 700,
+  textAlign: "center",
+  flexWrap: "wrap",
+  lineHeight: 1.25,
+  alignSelf: "end",
+  justifySelf: "center",
+},
+
+heroNodeCopy: {
+  margin: 0,
+  color: "rgba(215, 226, 241, 0.70)",
+  fontSize: isMobile ? 13 : 12,
+  lineHeight: 1.42,
+  textAlign: isMobile ? "center" : "left",
+  gridColumn: isMobile ? undefined : "2",
+  gridRow: isMobile ? undefined : "3",
+  alignSelf: "start",
+},
+
+heroConnector: {
+  display: isMobile ? "none" : "block",
+  position: "absolute",
+  left: "36%",
+  top: "48%",
+  width: "22%",
+  height: 2,
+  zIndex: 1,
+  borderRadius: 999,
+  background:
+    "linear-gradient(90deg, rgba(95, 169, 232, 0.08) 0%, rgba(95, 169, 232, 0.86) 48%, rgba(168, 143, 255, 0.08) 100%)",
+  boxShadow: "0 0 16px rgba(95, 169, 232, 0.28)",
+},
+
+heroDeviceStack: {
+  position: "relative",
+  zIndex: 1,
+  minWidth: 0,
+  display: "grid",
+  gap: 16,
+  alignContent: "center",
+},
+
+heroPhoneMock: {
+  justifySelf: isMobile ? "center" : "start",
+  width: isMobile ? "min(100%, 230px)" : 224,
+  minHeight: 248,
+  padding: 14,
+  borderRadius: 28,
+  border: "1px solid rgba(255, 255, 255, 0.13)",
+  background:
+    "linear-gradient(180deg, rgba(4, 9, 36, 0.88) 0%, rgba(8, 18, 56, 0.76) 100%)",
+  boxShadow: "0 20px 38px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08)",
+  display: "grid",
+  gap: 12,
+},
+
+heroPhoneTop: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 10,
+  color: "rgba(224, 228, 233, 0.74)",
+  fontSize: 12,
+  fontWeight: 800,
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+},
+
+heroPhoneBar: {
+  width: 38,
+  height: 5,
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.20)",
+},
+
+heroPhoneMap: {
+  position: "relative",
+  minHeight: 104,
+  borderRadius: 18,
+  display: "grid",
+  placeItems: "center",
+  color: colors.cyan2,
+  border: "1px solid rgba(95, 169, 232, 0.16)",
+  background:
+    "linear-gradient(135deg, rgba(95,169,232,0.12) 0%, rgba(47,44,143,0.10) 100%), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.035) 1px, transparent 1px)",
+  backgroundSize: "auto, 24px 24px, 24px 24px",
+  overflow: "hidden",
+},
+
+heroMapPath: {
+  position: "absolute",
+  left: "26%",
+  top: "34%",
+  width: "48%",
+  height: 34,
+  borderLeft: "2px solid rgba(95,169,232,0.42)",
+  borderBottom: "2px solid rgba(95,169,232,0.42)",
+  borderRadius: "0 0 0 18px",
+  transform: "rotate(-8deg)",
+},
+
+heroMapNode: {
+  position: "absolute",
+  width: 9,
+  height: 9,
+  borderRadius: 999,
+  background: "#F8FAFC",
+  boxShadow: "0 0 14px rgba(95, 169, 232, 0.64)",
+},
+
+heroPhoneRows: {
+  display: "grid",
+  gap: 7,
+  alignContent: "start",
+},
+
+heroPhoneRow: {
+  display: "block",
+  height: 7,
+  borderRadius: 999,
+  background: "linear-gradient(90deg, rgba(95,169,232,0.48), rgba(255,255,255,0.12))",
+},
+
+heroDashboardMock: {
+  justifySelf: isMobile ? "stretch" : "end",
+  width: isMobile ? "100%" : 278,
+  padding: 16,
+  borderRadius: 22,
+  border: "1px solid rgba(255, 255, 255, 0.12)",
+  background:
+    "linear-gradient(160deg, rgba(255,255,255,0.070) 0%, rgba(255,255,255,0.026) 100%)",
+  boxShadow: "0 20px 38px rgba(2, 6, 23, 0.16), inset 0 1px 0 rgba(255,255,255,0.06)",
+  display: "grid",
+  gap: 13,
+},
+
+heroDashboardTop: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  color: "#F8FAFC",
+  fontFamily: '"Syne", sans-serif',
+  fontWeight: 700,
+  fontSize: 15,
+},
+
+heroLiveDot: {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "5px 8px",
+  borderRadius: 999,
+  background: "rgba(95, 169, 232, 0.14)",
+  color: "#cbe7fb",
+  border: "1px solid rgba(95, 169, 232, 0.24)",
+  fontSize: 11,
+  fontFamily: '"Inter", "Helvetica Neue", Arial, sans-serif',
+},
+
+heroDashboardMap: {
+  position: "relative",
+  zIndex: 1,
+  minHeight: isMobile ? 114 : 74,
+  borderRadius: 17,
+  overflow: "hidden",
+  border: "1px solid rgba(95, 169, 232, 0.14)",
+  background:
+    "radial-gradient(circle at 58% 46%, rgba(95,169,232,0.22) 0%, rgba(95,169,232,0.06) 18%, transparent 34%), linear-gradient(135deg, rgba(3, 27, 112, 0.56), rgba(47,44,143,0.38)), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.038) 1px, transparent 1px)",
+  backgroundSize: "auto, auto, 22px 22px, 22px 22px",
+},
+
+heroNaviCareNode: {
+  isolation: "isolate",
+  background:
+    "linear-gradient(168deg, rgba(8,16,54,0.54) 0%, rgba(15,25,74,0.38) 58%, rgba(95,169,232,0.035) 100%)",
+},
+
+heroNaviCareMapBackdrop: {
+  position: "absolute",
+  inset: 0,
+  zIndex: 0,
+  opacity: 0.42,
+  pointerEvents: "none",
+  background:
+    "linear-gradient(135deg, rgba(3, 27, 112, 0.35), rgba(47,44,143,0.26)), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.038) 1px, transparent 1px)",
+  backgroundSize: "auto, 24px 24px, 24px 24px",
+},
+
+heroMapRegionA: {
+  position: "absolute",
+  left: "8%",
+  top: "16%",
+  width: "44%",
+  height: "42%",
+  borderRadius: "48% 52% 42% 58%",
+  background: "rgba(95,169,232,0.09)",
+  border: "1px solid rgba(95,169,232,0.10)",
+},
+
+heroMapRegionB: {
+  position: "absolute",
+  right: "9%",
+  bottom: "12%",
+  width: "46%",
+  height: "46%",
+  borderRadius: "52% 48% 56% 44%",
+  background: "rgba(168,143,255,0.08)",
+  border: "1px solid rgba(168,143,255,0.10)",
+},
+
+heroDashboardRoute: {
+  position: "absolute",
+  left: "13%",
+  right: "15%",
+  top: "54%",
+  height: 2,
+  borderRadius: 999,
+  background:
+    "linear-gradient(90deg, rgba(95,169,232,0.16), rgba(95,169,232,0.72), rgba(168,143,255,0.40))",
+  transform: "rotate(-12deg)",
+  transformOrigin: "center",
+},
+
+heroMapMarker: {
+  position: "absolute",
+  left: "59%",
+  top: "43%",
+  width: 14,
+  height: 14,
+  borderRadius: 999,
+  background: colors.cyan2,
+  boxShadow: "0 0 0 8px rgba(95,169,232,0.14), 0 0 20px rgba(95,169,232,0.58)",
+},
+
+heroDashboardStats: {
+  display: "grid",
+  gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
+  gap: 8,
+},
+
+heroDashboardStat: {
+  minWidth: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  padding: "8px 9px",
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.040)",
+  color: "rgba(224, 228, 233, 0.78)",
+  fontSize: 12,
+  fontWeight: 700,
 },
 
 heroTitleMainCentered: {
@@ -478,6 +1053,68 @@ proposalButton: {
     padding: "clamp(58px, 10vw, 108px) clamp(14px, 4vw, 28px) 0",
     boxSizing: "border-box",
     scrollMarginTop: isMobile ? 80 : 120,
+  },
+
+  ecosystemFlow: {
+    position: "relative",
+    display: "grid",
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(4, minmax(0, 1fr))",
+    gap: isMobile ? 14 : 18,
+    alignItems: "stretch",
+    paddingTop: isMobile ? 0 : 30,
+  },
+
+  ecosystemRail: {
+    display: isMobile ? "none" : "block",
+    position: "absolute",
+    top: 12,
+    left: "10%",
+    right: "10%",
+    height: 2,
+    borderRadius: 999,
+    background:
+      "linear-gradient(90deg, rgba(95,169,232,0.06) 0%, rgba(95,169,232,0.44) 34%, rgba(168,143,255,0.34) 66%, rgba(251,113,133,0.12) 100%)",
+    boxShadow: "0 0 16px rgba(95,169,232,0.14)",
+    zIndex: 0,
+  },
+
+  ecosystemStep: {
+    position: "relative",
+    zIndex: 1,
+    minWidth: 0,
+    minHeight: isMobile ? undefined : 250,
+    display: "grid",
+    alignContent: "start",
+    gap: 12,
+    padding: isMobile ? 18 : 20,
+    borderRadius: 22,
+    border: "1px solid rgba(255, 255, 255, 0.09)",
+    background:
+      "linear-gradient(165deg, rgba(14, 20, 54, 0.46) 0%, rgba(18, 24, 62, 0.44) 58%, rgba(22, 22, 66, 0.32) 100%)",
+    boxShadow:
+      "0 18px 36px rgba(2, 6, 23, 0.12), inset 0 1px 0 rgba(255,255,255,0.05)",
+  },
+
+  ecosystemStepTop: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 2,
+  },
+
+  ecosystemStepIndex: {
+    width: 46,
+    height: 28,
+    borderRadius: 999,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: "0.10em",
+    border: "1px solid rgba(95,169,232,0.22)",
+    background: "rgba(95,169,232,0.10)",
   },
   
 sectionTitle: {
