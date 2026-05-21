@@ -1,10 +1,56 @@
 import React from "react";
 import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
-import * as pdfjsLib from "pdfjs-dist";
-import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.mjs?url";
 import "./BlogPdfViewer.css";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+
+type PromiseWithResolversResult<T> = {
+  promise: Promise<T>;
+  resolve: (value: T | PromiseLike<T>) => void;
+  reject: (reason?: unknown) => void;
+};
+
+type PromiseConstructorWithResolvers = PromiseConstructor & {
+  withResolvers?: <T>() => PromiseWithResolversResult<T>;
+};
+
+function ensurePromiseWithResolvers() {
+  const promiseConstructor = Promise as PromiseConstructorWithResolvers;
+
+  if (typeof promiseConstructor.withResolvers === "function") {
+    return;
+  }
+
+  Object.defineProperty(promiseConstructor, "withResolvers", {
+    configurable: true,
+    value: function withResolvers<T>() {
+      let resolve!: PromiseWithResolversResult<T>["resolve"];
+      let reject!: PromiseWithResolversResult<T>["reject"];
+      const promise = new Promise<T>((promiseResolve, promiseReject) => {
+        resolve = promiseResolve;
+        reject = promiseReject;
+      });
+
+      return { promise, resolve, reject };
+    },
+  });
+}
+
+function isRenderCancellation(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return (
+    error.name === "RenderingCancelledException" ||
+    /cancel/i.test(error.name) ||
+    /cancel/i.test(error.message)
+  );
+}
+
+ensurePromiseWithResolvers();
 
 type BlogPdfViewerProps = {
   url: string;
@@ -13,18 +59,65 @@ type BlogPdfViewerProps = {
 
 type PdfPageCanvasProps = {
   document: PDFDocumentProxy;
+  onRenderError: () => void;
   pageNumber: number;
   pageWidth: number;
+  scrollerRef: React.RefObject<HTMLDivElement | null>;
 };
 
-function PdfPageCanvas({ document, pageNumber, pageWidth }: PdfPageCanvasProps) {
+function PdfPageCanvas({
+  document,
+  onRenderError,
+  pageNumber,
+  pageWidth,
+  scrollerRef,
+}: PdfPageCanvasProps) {
+  const pageRef = React.useRef<HTMLDivElement | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const [renderRequested, setRenderRequested] = React.useState(() => pageNumber === 1);
   const [renderState, setRenderState] = React.useState<"loading" | "ready" | "error">("loading");
+  const estimatedPageHeight = pageWidth > 0 ? Math.round(pageWidth * 1.414) : 360;
+
+  React.useEffect(() => {
+    setRenderRequested(pageNumber === 1);
+    setRenderState("loading");
+  }, [document, pageNumber]);
+
+  React.useEffect(() => {
+    if (renderRequested) {
+      return undefined;
+    }
+
+    const element = pageRef.current;
+
+    if (!element || typeof IntersectionObserver === "undefined") {
+      setRenderRequested(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setRenderRequested(true);
+          observer.disconnect();
+        }
+      },
+      {
+        root: scrollerRef.current,
+        rootMargin: "900px 0px",
+        threshold: 0.01,
+      }
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [renderRequested, scrollerRef]);
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
 
-    if (!canvas || pageWidth <= 0) {
+    if (!canvas || pageWidth <= 0 || !renderRequested) {
       return undefined;
     }
 
@@ -69,8 +162,10 @@ function PdfPageCanvas({ document, pageNumber, pageWidth }: PdfPageCanvasProps) 
         }
       })
       .catch((error) => {
-        if (!cancelled && error?.name !== "RenderingCancelledException") {
+        if (!cancelled && !isRenderCancellation(error)) {
+          console.warn(`Could not render PDF page ${pageNumber}.`, error);
           setRenderState("error");
+          onRenderError();
         }
       });
 
@@ -78,16 +173,24 @@ function PdfPageCanvas({ document, pageNumber, pageWidth }: PdfPageCanvasProps) 
       cancelled = true;
       renderTask?.cancel();
     };
-  }, [document, pageNumber, pageWidth]);
+  }, [document, onRenderError, pageNumber, pageWidth, renderRequested]);
 
   return (
-    <div className="blog-pdf-page">
-      {renderState === "loading" ? <div className="blog-pdf-page__loading" /> : null}
+    <div className="blog-pdf-page" ref={pageRef}>
+      {renderState === "loading" ? (
+        <div
+          className="blog-pdf-page__loading"
+          style={{
+            width: pageWidth > 0 ? pageWidth : undefined,
+            height: estimatedPageHeight,
+          }}
+        />
+      ) : null}
       <canvas
         ref={canvasRef}
         className="blog-pdf-page__canvas"
+        data-render-state={renderState}
         aria-label={`Page ${pageNumber}`}
-        style={{ display: renderState === "ready" ? "block" : "none" }}
       />
       {renderState === "error" ? (
         <div className="blog-pdf-viewer__status">This page could not be rendered.</div>
@@ -98,10 +201,12 @@ function PdfPageCanvas({ document, pageNumber, pageWidth }: PdfPageCanvasProps) 
 
 export function BlogPdfViewer({ url, title }: BlogPdfViewerProps) {
   const viewerRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollerRef = React.useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = React.useState(0);
   const [document, setDocument] = React.useState<PDFDocumentProxy | null>(null);
   const [pageCount, setPageCount] = React.useState(0);
   const [status, setStatus] = React.useState<"loading" | "ready" | "error">("loading");
+  const [renderFailed, setRenderFailed] = React.useState(false);
 
   React.useEffect(() => {
     const element = viewerRef.current;
@@ -124,11 +229,16 @@ export function BlogPdfViewer({ url, title }: BlogPdfViewerProps) {
 
   React.useEffect(() => {
     let cancelled = false;
-    const loadingTask = pdfjsLib.getDocument({ url });
+    const loadingTask = pdfjsLib.getDocument({
+      url,
+      stopAtErrors: false,
+      useSystemFonts: true,
+    });
 
     setStatus("loading");
     setDocument(null);
     setPageCount(0);
+    setRenderFailed(false);
 
     loadingTask.promise
       .then((loadedDocument) => {
@@ -161,9 +271,17 @@ export function BlogPdfViewer({ url, title }: BlogPdfViewerProps) {
     return Math.max(260, Math.min(containerWidth - 56, 860));
   }, [containerWidth]);
 
+  const handleRenderError = React.useCallback(() => {
+    setRenderFailed(true);
+  }, []);
+
   return (
     <div className="blog-pdf-viewer" ref={viewerRef}>
-      <div className="blog-pdf-viewer__scroller" aria-label={`${title} report reader`}>
+      <div
+        className="blog-pdf-viewer__scroller"
+        ref={scrollerRef}
+        aria-label={`${title} report reader`}
+      >
         {status === "loading" ? (
           <div className="blog-pdf-viewer__status">
             <span className="blog-pdf-viewer__spinner" aria-hidden="true" />
@@ -177,16 +295,30 @@ export function BlogPdfViewer({ url, title }: BlogPdfViewerProps) {
           </div>
         ) : null}
 
-        {status === "ready" && document && pageWidth > 0 ? (
+        {status === "ready" && document && pageWidth > 0 && !renderFailed ? (
           <div className="blog-pdf-viewer__pages">
             {Array.from({ length: pageCount }, (_, index) => (
               <PdfPageCanvas
                 key={`${url}-${index + 1}`}
                 document={document}
+                onRenderError={handleRenderError}
                 pageNumber={index + 1}
                 pageWidth={pageWidth}
+                scrollerRef={scrollerRef}
               />
             ))}
+          </div>
+        ) : null}
+
+        {status === "ready" && renderFailed ? (
+          <div className="blog-pdf-viewer__fallback-card">
+            <strong>Embedded reader unavailable in this browser.</strong>
+            <span>
+              The PDF is attached, but this browser could not draw it inside the custom reader.
+            </span>
+            <a href={url} target="_blank" rel="noreferrer">
+              Open PDF
+            </a>
           </div>
         ) : null}
       </div>

@@ -15,6 +15,7 @@ import {
   LockKeyhole,
   LogOut,
   MapPin,
+  UserRound,
   RefreshCcw,
   ShieldAlert,
   ShieldCheck,
@@ -24,7 +25,6 @@ import {
 } from "lucide-react";
 import {
   fetchNaviCareTelemetry,
-  getNaviCareVestId,
   type NaviCareTelemetry,
 } from "../services/navicareTelemetry";
 import "./NaviCareDashboard.css";
@@ -38,6 +38,7 @@ type StatusTone = "online" | "offline" | "stale" | "critical" | "demo" | "neutra
 const DEMO_USERNAME = "navicare.monitor";
 const DEMO_PASSWORD = "NaviCare2026";
 const POLL_INTERVAL_MS = 5_000;
+const MIN_REFRESH_INDICATOR_MS = 650;
 const DEFAULT_MAP_CENTER: [number, number] = [38.736946, -9.138742];
 
 export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
@@ -50,6 +51,7 @@ export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
   const mountedRef = useRef(true);
 
   const refreshTelemetry = useCallback(async () => {
+    const refreshStartedAt = performance.now();
     setRefreshing(true);
 
     try {
@@ -70,6 +72,13 @@ export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
       setError(getErrorMessage(caughtError));
       setLoading(false);
     } finally {
+      const remainingIndicatorTime =
+        MIN_REFRESH_INDICATOR_MS - (performance.now() - refreshStartedAt);
+
+      if (remainingIndicatorTime > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, remainingIndicatorTime));
+      }
+
       if (mountedRef.current) {
         setRefreshing(false);
       }
@@ -365,6 +374,13 @@ function DashboardView({
               tone={telemetry?.hasLocation ? "online" : "stale"}
               value={formatCoordinates(telemetry)}
             />
+            <StatusRow
+              icon={UserRound}
+              label="Last wearer"
+              meta={telemetry?.rawStatus ? `Tracker status: ${telemetry.rawStatus}` : "Latest tracker record"}
+              tone="neutral"
+              value={telemetry?.wearerName || "Unavailable"}
+            />
             {telemetry?.mode === "demo" && telemetry.heartRateBpm !== null ? (
               <StatusRow
                 icon={HeartPulse}
@@ -377,8 +393,12 @@ function DashboardView({
           </div>
 
           <div className="navicare-footnote">
-            <span>Vest ID</span>
-            <strong>{telemetry?.vestId || getNaviCareVestId()}</strong>
+            <span>Vest</span>
+            <strong>{telemetry?.displayName || "NaviSense Vest"}</strong>
+          </div>
+          <div className="navicare-footnote">
+            <span>Record ID</span>
+            <strong>{telemetry?.recordId || "Unavailable"}</strong>
           </div>
           <div className="navicare-footnote">
             <span>Last update</span>

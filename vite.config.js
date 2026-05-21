@@ -50,16 +50,8 @@ export default defineConfig({
   base: basePath,
   build: {
     target: 'esnext',
-    minify: 'terser',
+    minify: 'oxc',
     cssMinify: true,
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        passes: 2,
-      },
-      mangle: true,
-    },
     reportCompressedSize: false,
     chunkSizeWarningLimit: 650,
     rollupOptions: {
