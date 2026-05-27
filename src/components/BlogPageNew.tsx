@@ -55,9 +55,13 @@ function formatDate(dateString: string) {
 
 function getCategoryColor(category: string) {
   const colorMap: Record<string, string> = {
+    Planning: "#f8c471",
     Development: "#5FA9E8",
     Partnerships: "#A88FFF",
     Design: "#FFD966",
+    Prototype: "#34d399",
+    Presentation: "#f472b6",
+    Integration: "#38bdf8",
     Testing: "#a7f3d0",
     Research: "#a5f3fc",
   };
@@ -805,6 +809,7 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                                     fontSize: isMobile ? 14.5 : 15,
                                     lineHeight: 1.78,
                                     color: "rgba(224, 228, 233, 0.70)",
+                                    whiteSpace: "pre-line",
                                   }}
                                 >
                                   {post.content}
