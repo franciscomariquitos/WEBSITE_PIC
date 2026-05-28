@@ -158,7 +158,7 @@ export const siteData = {
       content:
         "This first stage helped transform the initial NAVISense concept into a more concrete development plan. We met as a team to discuss what the project could become, sketching the first ideas for the prototype and identifying which functionalities mattered most.\n\nWe also discussed how those ideas could be achieved with the technology available to us, from sensors and communication links to the general structure of the system. Roles were assigned to each team member, but we agreed that the project should remain collaborative, with everyone able to contribute beyond their assigned area.\n\nBeyond the functional side, we also started defining how NAVISense should be presented. We identified the pitch deck, website, and poster as key communication materials, and agreed that they should share the same visual identity so the project would feel coherent both technically and visually.",
       author: "Team NAVISense",
-      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportPdfUrl: "reports/hello-world-brainstorming.pdf",
       reportAvailable: true,
     },
     {
