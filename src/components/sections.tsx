@@ -2044,14 +2044,14 @@ export function ContactSection() {
                   Contact details are shared through the project team channels.
                 </p>
               )}
-              <div
-                style={{
-                  display: "flex",
-                  gap: 14,
-                  justifyContent: isMobile ? "center" : "flex-start",
-                }}
-              >
-                {siteData.project.linkedin ? (
+              {siteData.project.linkedin ? (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 14,
+                    justifyContent: isMobile ? "center" : "flex-start",
+                  }}
+                >
                   <a
                     href={siteData.project.linkedin}
                     target="_blank"
@@ -2061,17 +2061,8 @@ export function ContactSection() {
                   >
                     <Linkedin size={20} />
                   </a>
-                ) : null}
-                {siteData.project.email ? (
-                  <a
-                    href={`mailto:${siteData.project.email}`}
-                    style={{ color: colors.cyan2, opacity: 0.84, transition: "opacity 0.2s ease" }}
-                    aria-label="Email"
-                  >
-                    <Mail size={20} />
-                  </a>
-                ) : null}
-              </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

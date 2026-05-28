@@ -43,7 +43,7 @@ export const siteData = {
     ],
     subtitle:
       "A connected assistive vest that senses the environment, guides movement through haptic feedback, and links critical status to NaviCare monitoring.",
-    email: "",
+    email: "navisense.2026@gmail.com",
     linkedin: "",
     acknowledgements: "Instituto Superior Tecnico - Student Innovation Project",
   },
