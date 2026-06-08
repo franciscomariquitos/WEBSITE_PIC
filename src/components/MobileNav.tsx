@@ -41,7 +41,7 @@ const MobileNav: React.FC = () => {
             overflowY: "auto",
             overscrollBehavior: "contain",
             zIndex: 110,
-            transition: "background 0.3s",
+            transition: "none",
           }}
         >
           {siteData.nav.map((item) => (
@@ -55,7 +55,7 @@ const MobileNav: React.FC = () => {
                 margin: "18px 0",
                 fontWeight: 600,
                 letterSpacing: "-0.02em",
-                transition: "color 0.2s",
+                transition: "none",
               }}
               onClick={() => setOpen(false)}
             >

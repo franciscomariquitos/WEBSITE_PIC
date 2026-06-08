@@ -2,6 +2,7 @@ import React from "react";
 import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import pdfWorkerUrl from "pdfjs-dist/legacy/build/pdf.worker.mjs?url";
+import { useIsMobile } from "../hooks/useIsMobile";
 import "./BlogPdfViewer.css";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -56,6 +57,10 @@ type BlogPdfViewerProps = {
   url: string;
   title: string;
 };
+
+const MOBILE_PAGE_MIN_WIDTH = 420;
+const MOBILE_PAGE_MAX_WIDTH = 760;
+const MOBILE_PAGE_WIDTH_MULTIPLIER = 1.45;
 
 type PdfPageCanvasProps = {
   document: PDFDocumentProxy;
@@ -200,6 +205,7 @@ function PdfPageCanvas({
 }
 
 export function BlogPdfViewer({ url, title }: BlogPdfViewerProps) {
+  const isMobile = useIsMobile();
   const viewerRef = React.useRef<HTMLDivElement | null>(null);
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = React.useState(0);
@@ -207,6 +213,16 @@ export function BlogPdfViewer({ url, title }: BlogPdfViewerProps) {
   const [pageCount, setPageCount] = React.useState(0);
   const [status, setStatus] = React.useState<"loading" | "ready" | "error">("loading");
   const [renderFailed, setRenderFailed] = React.useState(false);
+
+  React.useEffect(() => {
+    window.document.body.classList.add("navisense-report-pan-active");
+    window.document.documentElement.classList.add("navisense-report-pan-active");
+
+    return () => {
+      window.document.body.classList.remove("navisense-report-pan-active");
+      window.document.documentElement.classList.remove("navisense-report-pan-active");
+    };
+  }, []);
 
   React.useEffect(() => {
     const element = viewerRef.current;
@@ -268,8 +284,17 @@ export function BlogPdfViewer({ url, title }: BlogPdfViewerProps) {
       return 0;
     }
 
+    if (isMobile) {
+      return Math.round(
+        Math.min(
+          Math.max(containerWidth * MOBILE_PAGE_WIDTH_MULTIPLIER, MOBILE_PAGE_MIN_WIDTH),
+          MOBILE_PAGE_MAX_WIDTH
+        )
+      );
+    }
+
     return Math.max(260, Math.min(containerWidth - 56, 860));
-  }, [containerWidth]);
+  }, [containerWidth, isMobile]);
 
   const handleRenderError = React.useCallback(() => {
     setRenderFailed(true);

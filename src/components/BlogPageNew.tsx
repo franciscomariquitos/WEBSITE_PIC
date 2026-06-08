@@ -261,11 +261,7 @@ export const BlogPageNew = React.memo(function BlogPageNew({
     overflowY: "auto",
     overscrollBehavior: "contain",
     background: isMobile
-      ? `
-        radial-gradient(circle at 16% 18%, rgba(168, 143, 255, 0.070) 0%, transparent 30%),
-        radial-gradient(circle at 86% 10%, rgba(95, 169, 232, 0.055) 0%, transparent 31%),
-        linear-gradient(115deg, #01031f 0%, #03104a 34%, #11145f 62%, #12083e 100%)
-      `
+      ? "#01031f"
       : `
         radial-gradient(circle at 14% 74%, rgba(95, 169, 232, 0.055) 0%, transparent 22%),
         radial-gradient(circle at 18% 28%, rgba(168, 143, 255, 0.065) 0%, transparent 28%),
@@ -283,6 +279,7 @@ export const BlogPageNew = React.memo(function BlogPageNew({
         style={{
           position: "fixed",
           inset: 0,
+          display: isMobile ? "none" : "block",
           pointerEvents: "none",
           background: isMobile
             ? `
@@ -310,8 +307,9 @@ export const BlogPageNew = React.memo(function BlogPageNew({
               ? "linear-gradient(180deg, rgba(4,9,42,0.90) 0%, rgba(8,12,54,0.74) 72%, rgba(8,12,54,0.34) 100%)"
               : "linear-gradient(180deg, rgba(4,9,42,0.88) 0%, rgba(8,12,54,0.76) 100%)",
             borderBottom: "1px solid rgba(255, 255, 255, 0.07)",
-            transition:
-              "background 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease",
+            transition: disableMotion
+              ? "none"
+              : "background 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease",
             boxShadow: isMobile ? "none" : "0 12px 30px rgba(2, 6, 23, 0.12)",
           }}
         >
@@ -685,8 +683,9 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                             boxShadow: active
                               ? `0 18px 42px rgba(2, 6, 23, 0.16), 0 0 24px ${categoryColor}10`
                               : "0 12px 28px rgba(2, 6, 23, 0.10)",
-                            transition:
-                              "border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease",
+                            transition: disableMotion
+                              ? "none"
+                              : "border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease",
                           }}
                         >
                           <div

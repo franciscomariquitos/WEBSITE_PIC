@@ -1,11 +1,50 @@
-@media (max-width: 768px) {
+@media (max-width: 980px) {
   html,
   body {
     overflow-x: hidden;
+    scroll-behavior: auto !important;
   }
 
   body {
     touch-action: manipulation;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  *,
+  *::before,
+  *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    will-change: auto !important;
+  }
+
+  html.navisense-report-pan-active,
+  html.navisense-report-pan-active body,
+  html.navisense-report-pan-active #root,
+  body.navisense-report-pan-active,
+  body.navisense-report-pan-active #root {
+    overflow-x: visible !important;
+    overscroll-behavior-x: auto !important;
+    touch-action: pan-x pan-y pinch-zoom;
   }
 }
 

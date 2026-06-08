@@ -21,6 +21,7 @@ export function getStyles(isMobile: boolean): Record<string, CSSProperties> {
 	    padding: isMobile ? "0" : undefined,
 	  },
 	  backgroundStage: {
+	    display: isMobile ? "none" : "block",
 	    position: "fixed",
 	    inset: 0,
 	    zIndex: 0,

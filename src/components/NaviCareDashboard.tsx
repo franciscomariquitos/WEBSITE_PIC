@@ -19,6 +19,8 @@ import {
   RefreshCcw,
   ShieldAlert,
   ShieldCheck,
+  Volume2,
+  VolumeX,
   Wifi,
   WifiOff,
   type LucideIcon,
@@ -40,6 +42,23 @@ const DEMO_PASSWORD = "NaviCare2026";
 const POLL_INTERVAL_MS = 5_000;
 const MIN_REFRESH_INDICATOR_MS = 650;
 const DEFAULT_MAP_CENTER: [number, number] = [38.736946, -9.138742];
+const ALARM_TONE_INTERVAL_MS = 1_450;
+
+type CriticalAlarmControls = {
+  acknowledge: () => void;
+  acknowledged: boolean;
+  audioReady: boolean;
+  audioSupported: boolean;
+  isSounding: boolean;
+  muted: boolean;
+  primeAudio: () => Promise<boolean>;
+  toggleMuted: () => void;
+};
+
+type BrowserWithWebAudio = Window &
+  typeof globalThis & {
+    webkitAudioContext?: typeof AudioContext;
+  };
 
 export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -108,12 +127,15 @@ export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
   }, [authenticated, refreshTelemetry]);
 
   const statusTone = getStatusTone(telemetry);
+  const criticalActive = statusTone === "critical";
+  const alarm = useCriticalAlarm(criticalActive);
   const statusText = getStatusText(telemetry, loading);
   const lastUpdate = telemetry ? formatDateTime(telemetry.fetchedAt) : "Waiting for telemetry";
 
   const handleAuthenticated = useCallback(() => {
     setAuthenticated(true);
-  }, []);
+    void alarm.primeAudio();
+  }, [alarm]);
 
   const handleLogout = useCallback(() => {
     setAuthenticated(false);
@@ -127,6 +149,8 @@ export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
     <section className="navicare-shell" aria-label="NaviCare monitoring dashboard">
       {authenticated ? (
         <DashboardView
+          alarm={alarm}
+          criticalActive={criticalActive}
           error={error}
           lastUpdate={lastUpdate}
           loading={loading}
@@ -144,6 +168,149 @@ export function NaviCareDashboard({ onClose }: NaviCareDashboardProps) {
       )}
     </section>
   );
+}
+
+function useCriticalAlarm(criticalActive: boolean): CriticalAlarmControls {
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const intervalRef = useRef(0);
+  const [audioReady, setAudioReady] = useState(false);
+  const [audioSupported, setAudioSupported] = useState(true);
+  const [muted, setMuted] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false);
+  const isSounding = criticalActive && audioReady && !muted && !acknowledged;
+
+  const primeAudio = useCallback(async () => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    const AudioContextConstructor = getAudioContextConstructor();
+
+    if (!AudioContextConstructor) {
+      setAudioSupported(false);
+      setAudioReady(false);
+      return false;
+    }
+
+    try {
+      const context =
+        audioContextRef.current || new AudioContextConstructor({ latencyHint: "interactive" });
+      audioContextRef.current = context;
+
+      if (context.state === "suspended") {
+        await context.resume();
+      }
+
+      const ready = context.state === "running";
+      setAudioReady(ready);
+      setAudioSupported(true);
+      return ready;
+    } catch {
+      setAudioReady(false);
+      return false;
+    }
+  }, []);
+
+  const acknowledge = useCallback(() => {
+    setAcknowledged(true);
+  }, []);
+
+  const toggleMuted = useCallback(() => {
+    setMuted((currentMuted) => {
+      if (currentMuted) {
+        setAcknowledged(false);
+      }
+
+      return !currentMuted;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (criticalActive) {
+      return undefined;
+    }
+
+    const resetTimer = window.setTimeout(() => setAcknowledged(false), 0);
+
+    return () => window.clearTimeout(resetTimer);
+  }, [criticalActive]);
+
+  useEffect(() => {
+    if (!isSounding || !audioContextRef.current) {
+      return undefined;
+    }
+
+    const play = () => {
+      const context = audioContextRef.current;
+
+      if (!context || context.state !== "running") {
+        setAudioReady(false);
+        return;
+      }
+
+      playCriticalTone(context);
+    };
+
+    play();
+    intervalRef.current = window.setInterval(play, ALARM_TONE_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = 0;
+    };
+  }, [isSounding]);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+      }
+
+      void audioContextRef.current?.close();
+      audioContextRef.current = null;
+    };
+  }, []);
+
+  return {
+    acknowledge,
+    acknowledged,
+    audioReady,
+    audioSupported,
+    isSounding,
+    muted,
+    primeAudio,
+    toggleMuted,
+  };
+}
+
+function getAudioContextConstructor() {
+  const audioWindow = window as BrowserWithWebAudio;
+  return audioWindow.AudioContext || audioWindow.webkitAudioContext || null;
+}
+
+function playCriticalTone(context: AudioContext) {
+  const startAt = context.currentTime + 0.01;
+  const tones = [
+    { offset: 0, frequency: 880 },
+    { offset: 0.24, frequency: 660 },
+  ];
+
+  tones.forEach(({ frequency, offset }) => {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const toneStart = startAt + offset;
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, toneStart);
+    gain.gain.setValueAtTime(0.0001, toneStart);
+    gain.gain.exponentialRampToValueAtTime(0.16, toneStart + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, toneStart + 0.16);
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(toneStart);
+    oscillator.stop(toneStart + 0.18);
+  });
 }
 
 function LoginView({
@@ -244,6 +411,8 @@ function LoginView({
 }
 
 function DashboardView({
+  alarm,
+  criticalActive,
   error,
   lastUpdate,
   loading,
@@ -256,6 +425,8 @@ function DashboardView({
   statusTone,
   telemetry,
 }: {
+  alarm: CriticalAlarmControls;
+  criticalActive: boolean;
   error: string | null;
   lastUpdate: string;
   loading: boolean;
@@ -269,7 +440,16 @@ function DashboardView({
   telemetry: NaviCareTelemetry | null;
 }) {
   return (
-    <div className="navicare-dashboard">
+    <div
+      className={[
+        "navicare-dashboard",
+        criticalActive ? "navicare-dashboard--critical" : "",
+        alarm.acknowledged ? "navicare-dashboard--alarm-acknowledged" : "",
+        alarm.isSounding ? "navicare-dashboard--sounding" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <header className="navicare-topbar">
         <div className="navicare-title-group">
           <button className="navicare-icon-button" type="button" onClick={onClose}>
@@ -324,6 +504,8 @@ function DashboardView({
               {notice}
             </InfoBanner>
           ) : null}
+
+          {criticalActive ? <CriticalAlarmBanner alarm={alarm} /> : null}
 
           {error ? (
             <InfoBanner tone="critical" icon={<AlertTriangle size={18} aria-hidden="true" />}>
@@ -408,6 +590,81 @@ function DashboardView({
       </main>
     </div>
   );
+}
+
+function CriticalAlarmBanner({ alarm }: { alarm: CriticalAlarmControls }) {
+  const soundStatus = getAlarmSoundStatus(alarm);
+
+  return (
+    <div className="navicare-critical-alert" role="alert" aria-live="assertive">
+      <div className="navicare-critical-alert-main">
+        <span className="navicare-critical-alert-icon" aria-hidden="true">
+          <ShieldAlert size={22} />
+        </span>
+        <div>
+          <h3>Critical alarm</h3>
+          <p>Immediate attention required. Check wearer status and live location.</p>
+          <span>{soundStatus}</span>
+        </div>
+      </div>
+
+      <div className="navicare-critical-alert-actions">
+        {!alarm.audioReady && alarm.audioSupported ? (
+          <button
+            className="navicare-alert-action"
+            onClick={() => {
+              void alarm.primeAudio();
+            }}
+            type="button"
+          >
+            <Volume2 size={16} aria-hidden="true" />
+            Enable sound
+          </button>
+        ) : null}
+
+        {alarm.audioReady ? (
+          <button className="navicare-alert-action" onClick={alarm.toggleMuted} type="button">
+            {alarm.muted ? (
+              <Volume2 size={16} aria-hidden="true" />
+            ) : (
+              <VolumeX size={16} aria-hidden="true" />
+            )}
+            {alarm.muted ? "Unmute" : "Mute"}
+          </button>
+        ) : null}
+
+        <button
+          className="navicare-alert-action"
+          disabled={alarm.acknowledged}
+          onClick={alarm.acknowledge}
+          type="button"
+        >
+          <CheckCircle2 size={16} aria-hidden="true" />
+          {alarm.acknowledged ? "Acknowledged" : "Acknowledge"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function getAlarmSoundStatus(alarm: CriticalAlarmControls) {
+  if (!alarm.audioSupported) {
+    return "Sound unavailable in this browser.";
+  }
+
+  if (!alarm.audioReady) {
+    return "Sound needs monitor permission.";
+  }
+
+  if (alarm.acknowledged) {
+    return "Sound acknowledged for this critical event.";
+  }
+
+  if (alarm.muted) {
+    return "Sound muted.";
+  }
+
+  return "Sound armed.";
 }
 
 function MapPanel({ telemetry }: { telemetry: NaviCareTelemetry | null }) {

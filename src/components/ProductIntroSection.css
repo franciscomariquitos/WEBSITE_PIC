@@ -459,19 +459,37 @@
     text-align: center;
   }
 
+  .product-intro-sticky::before,
+  .product-intro-sticky::after {
+    display: none;
+  }
+
   .product-intro-visual {
     min-height: 290px;
     transform: none;
     overflow: hidden;
+    will-change: auto;
+  }
+
+  .product-intro-orbit {
+    box-shadow: none;
+    opacity: 0.62;
   }
 
   .product-intro-poster {
     width: min(72vw, 360px);
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.025);
   }
 
   .product-intro-copy {
     opacity: 1;
     transform: none;
+    will-change: auto;
+  }
+
+  .product-intro-poster img {
+    filter: none;
   }
 
   .product-intro-callouts {
@@ -499,6 +517,7 @@
   .product-intro-component {
     opacity: 1;
     transform: none;
+    box-shadow: none;
   }
 }
 

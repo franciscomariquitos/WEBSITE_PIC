@@ -1,4 +1,5 @@
 import React from "react";
+import { useResponsive } from "../context/ResponsiveContext";
 
 export function RevealImage({
   alt,
@@ -15,14 +16,15 @@ export function RevealImage({
   src: string;
   style?: React.CSSProperties;
 }) {
-  const [loaded, setLoaded] = React.useState(false);
+  const { disableMotion } = useResponsive();
+  const [loaded, setLoaded] = React.useState(() => disableMotion);
   const imageRef = React.useRef<HTMLImageElement | null>(null);
 
   React.useEffect(() => {
     const image = imageRef.current;
 
-    setLoaded(Boolean(image?.complete && image.naturalWidth > 0));
-  }, [src]);
+    setLoaded(disableMotion || Boolean(image?.complete && image.naturalWidth > 0));
+  }, [disableMotion, src]);
 
   return (
     <div
@@ -40,9 +42,9 @@ export function RevealImage({
           borderRadius: 24,
           background:
             "linear-gradient(180deg, rgba(95, 169, 232, 0.14) 0%, rgba(168, 143, 255, 0.08) 100%)",
-          opacity: loaded ? 0 : 1,
-          transform: loaded ? "scale(0.98)" : "scale(1)",
-          transition: "opacity 220ms ease, transform 220ms ease",
+          opacity: disableMotion || loaded ? 0 : 1,
+          transform: disableMotion || loaded ? "scale(0.98)" : "scale(1)",
+          transition: disableMotion ? "none" : "opacity 220ms ease, transform 220ms ease",
         }}
       />
 
@@ -57,8 +59,8 @@ export function RevealImage({
         onError={() => setLoaded(true)}
         style={{
           ...style,
-          opacity: loaded ? 1 : 0,
-          transition: "opacity 260ms ease",
+          opacity: disableMotion || loaded ? 1 : 0,
+          transition: disableMotion ? "none" : "opacity 260ms ease",
           position: "relative",
           zIndex: 1,
         }}
