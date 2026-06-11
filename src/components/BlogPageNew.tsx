@@ -73,6 +73,100 @@ function hasDownloadableReport(post: BlogPost) {
   return Boolean(post.reportPdfUrl && post.reportAvailable);
 }
 
+const expandedImagePaths: Record<string, string> = {
+  "Hello world - The Brainstorming": "blog-updates/01-hello-world-brainstorming.png",
+  "Partnerships & Technical Development": "blog-updates/02-partnerships-technical-development.png",
+  "Website Launch": "blog-updates/03-website-launch.png",
+  "Bengala Magica Partnership Initiated": "blog-updates/04-bengala-magica-partnership.png",
+  "First version of the mobile app launched": "blog-updates/05-mobile-app-launched.png",
+  "Prototype Materials Selection and BOM Finalization": "blog-updates/06-prototype-materials-bom.png",
+  "Intermediate Project Presentation": "blog-updates/07-intermediate-project-presentation.png",
+  "Project Proposal": "blog-updates/08-project-proposal.png",
+  "Arrival of Initial Components and Prototype Construction Start": "blog-updates/09-initial-components-prototype-construction.png",
+  "Bluetooth, 4G and database integration": "blog-updates/10-bluetooth-4g-database-integration.jpeg",
+};
+
+const expandedImageUrls = Object.values(expandedImagePaths).map((path) => withBaseUrl(path));
+const preloadedExpandedImages = new Set<string>();
+
+type IdleWindow = Window & {
+  cancelIdleCallback?: (handle: number) => void;
+  requestIdleCallback?: (
+    callback: (_deadline: unknown) => void,
+    options?: { timeout: number }
+  ) => number;
+};
+
+function getExpandedImagePath(post: BlogPost) {
+  return expandedImagePaths[post.title] ?? null;
+}
+
+function preloadExpandedImage(url: string) {
+  if (preloadedExpandedImages.has(url)) {
+    return;
+  }
+
+  preloadedExpandedImages.add(url);
+  const image = new Image();
+  image.decoding = "async";
+  image.src = url;
+}
+
+function ExpandedPostImage({
+  imagePath,
+  isMobile,
+  title,
+}: {
+  imagePath: string;
+  isMobile: boolean;
+  title: string;
+}) {
+  const [hidden, setHidden] = React.useState(false);
+
+  React.useEffect(() => {
+    setHidden(false);
+  }, [imagePath]);
+
+  if (hidden) {
+    return null;
+  }
+
+  const src = withBaseUrl(imagePath);
+
+  return (
+    <figure
+      style={{
+        width: "fit-content",
+        maxWidth: "100%",
+        margin: `0 auto ${isMobile ? 14 : 18}px`,
+        overflow: "hidden",
+        borderRadius: isMobile ? 14 : 16,
+        border: "1px solid rgba(255,255,255,0.10)",
+        background:
+          "linear-gradient(135deg, rgba(255,255,255,0.050) 0%, rgba(255,255,255,0.024) 100%)",
+        boxShadow: isMobile ? "none" : "0 16px 34px rgba(2, 6, 23, 0.18)",
+      }}
+    >
+      <img
+        alt={`${title} update`}
+        src={src}
+        loading="eager"
+        decoding="async"
+        fetchPriority="high"
+        onError={() => setHidden(true)}
+        style={{
+          display: "block",
+          width: "auto",
+          maxWidth: "100%",
+          maxHeight: isMobile ? 260 : 430,
+          objectFit: "contain",
+          objectPosition: "center",
+        }}
+      />
+    </figure>
+  );
+}
+
 function groupPostsByMonth(posts: BlogPost[]): MonthGroup[] {
   const groups = new Map<string, MonthGroup>();
 
@@ -123,7 +217,7 @@ export const BlogPageNew = React.memo(function BlogPageNew({
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
   const shellRef = React.useRef<HTMLDivElement | null>(null);
   const postRefs = React.useRef<Record<string, HTMLElement | null>>({});
-  const reportReaderRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
+  const expandedContentRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
 
   const allPosts = React.useMemo(
     () =>
@@ -168,6 +262,24 @@ export const BlogPageNew = React.memo(function BlogPageNew({
   const monthGroups = React.useMemo(() => groupPostsByMonth(filteredPosts), [filteredPosts]);
   const latestPost = filteredPosts[0] ?? allPosts[0] ?? null;
   const hasFilters = Boolean(searchQuery.trim() || selectedCategory);
+
+  React.useEffect(() => {
+    const idleWindow = window as IdleWindow;
+    const preloadAll = () => {
+      expandedImageUrls.forEach(preloadExpandedImage);
+    };
+
+    if (typeof idleWindow.requestIdleCallback === "function") {
+      const idleId = idleWindow.requestIdleCallback(preloadAll, { timeout: 900 });
+
+      return () => idleWindow.cancelIdleCallback?.(idleId);
+    }
+
+    const timeoutId = window.setTimeout(preloadAll, 120);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
   const scrollElementIntoBlogView = React.useCallback(
     (getElement: () => HTMLElement | null, delay = 70) => {
       window.setTimeout(() => {
@@ -217,16 +329,15 @@ export const BlogPageNew = React.memo(function BlogPageNew({
     },
     [scrollElementIntoBlogView]
   );
-  const scrollReportIntoView = React.useCallback(
+  const scrollExpandedPostIntoView = React.useCallback(
     (postKey: string) => {
       scrollElementIntoBlogView(
-        () => reportReaderRefs.current[postKey] ?? postRefs.current[postKey] ?? null,
-        140
+        () => expandedContentRefs.current[postKey] ?? postRefs.current[postKey] ?? null,
+        120
       );
     },
     [scrollElementIntoBlogView]
   );
-
   React.useEffect(() => {
     if (!selectedPost) {
       return;
@@ -657,6 +768,7 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                       const reportUrl = reportIsDownloadable
                         ? withBaseUrl(post.reportPdfUrl)
                         : null;
+                      const expandedImagePath = getExpandedImagePath(post);
                       const isLatest = latestPost
                         ? getPostKey(latestPost) === postKey
                         : false;
@@ -796,12 +908,22 @@ export const BlogPageNew = React.memo(function BlogPageNew({
 
                             {expanded ? (
                               <div
+                                ref={(element) => {
+                                  expandedContentRefs.current[postKey] = element;
+                                }}
                                 style={{
                                   padding: isMobile ? "12px 0 0 12px" : "14px 0 0 16px",
                                   borderTop: "1px solid rgba(255,255,255,0.07)",
                                   borderLeft: `1px solid ${categoryColor}46`,
                                 }}
                               >
+                                {expandedImagePath ? (
+                                  <ExpandedPostImage
+                                    imagePath={expandedImagePath}
+                                    isMobile={isMobile}
+                                    title={post.title}
+                                  />
+                                ) : null}
                                 <p
                                   style={{
                                     margin: 0,
@@ -819,9 +941,6 @@ export const BlogPageNew = React.memo(function BlogPageNew({
 
                           {reportReaderOpen ? (
                             <div
-                              ref={(element) => {
-                                reportReaderRefs.current[postKey] = element;
-                              }}
                               style={{
                                 display: "grid",
                                 gap: 12,
@@ -1042,14 +1161,20 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                             >
                               <button
                                 type="button"
-                                onClick={() =>
-                                  setActivePostMode((currentValue) =>
-                                    currentValue?.key === postKey &&
-                                    currentValue.mode === "summaryExpanded"
-                                      ? null
-                                      : { key: postKey, mode: "summaryExpanded" }
-                                  )
-                                }
+                                onClick={() => {
+                                  const willExpand = !(
+                                    activePostMode?.key === postKey &&
+                                    activePostMode.mode === "summaryExpanded"
+                                  );
+
+                                  setActivePostMode(
+                                    willExpand ? { key: postKey, mode: "summaryExpanded" } : null
+                                  );
+
+                                  if (willExpand) {
+                                    scrollExpandedPostIntoView(postKey);
+                                  }
+                                }}
                                 style={{
                                   padding: "8px 0",
                                   borderRadius: 999,
@@ -1069,32 +1194,6 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                                 {expanded ? "Show less" : "Read more"}
                               </button>
 
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setActivePostMode({ key: postKey, mode: "reportReader" });
-                                  scrollReportIntoView(postKey);
-                                }}
-                                style={{
-                                  padding: "8px 0",
-                                  borderRadius: 999,
-                                  border: "none",
-                                  background: "transparent",
-                                  color: categoryColor,
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: 8,
-                                  fontWeight: 700,
-                                  fontSize: 13,
-                                  textTransform: "uppercase",
-                                  letterSpacing: "0.08em",
-                                  cursor: "pointer",
-                                  minHeight: isMobile ? 44 : undefined,
-                                }}
-                              >
-                                <FileText size={15} />
-                                {reportIsDownloadable ? "Read full report" : "Report preview"}
-                              </button>
                             </div>
                           )}
                         </article>
