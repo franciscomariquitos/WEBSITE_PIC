@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Local source image sequences
+caixa_explodida/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

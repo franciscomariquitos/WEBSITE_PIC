@@ -16,7 +16,6 @@ type ActivePostMode = {
   key: string;
   mode: "summaryExpanded" | "reportReader";
 } | null;
-
 const BlogPdfViewer = React.lazy(() =>
   import("./BlogPdfViewer").then((module) => ({
     default: module.BlogPdfViewer,
@@ -77,7 +76,7 @@ const expandedImagePaths: Record<string, string> = {
   "Hello world - The Brainstorming": "blog-updates/01-hello-world-brainstorming.png",
   "Partnerships & Technical Development": "blog-updates/02-partnerships-technical-development.png",
   "Website Launch": "blog-updates/03-website-launch.png",
-  "Bengala Magica Partnership Initiated": "blog-updates/04-bengala-magica-partnership.png",
+  "Bengala Mágica Partnership Initiated": "blog-updates/04-bengala-magica-partnership.png",
   "First version of the mobile app launched": "blog-updates/05-mobile-app-launched.png",
   "Prototype Materials Selection and BOM Finalization": "blog-updates/06-prototype-materials-bom.png",
   "Intermediate Project Presentation": "blog-updates/07-intermediate-project-presentation.png",
@@ -86,7 +85,14 @@ const expandedImagePaths: Record<string, string> = {
   "Bluetooth, 4G and database integration": "blog-updates/10-bluetooth-4g-database-integration.jpeg",
 };
 
-const expandedImageUrls = Object.values(expandedImagePaths).map((path) => withBaseUrl(path));
+const expandedImageUrls = Array.from(
+  new Set(
+    [
+      ...Object.values(expandedImagePaths),
+      ...siteData.updates.flatMap((post) => (post.imagePath ? [post.imagePath] : [])),
+    ].map((path) => withBaseUrl(path))
+  )
+);
 const preloadedExpandedImages = new Set<string>();
 
 type IdleWindow = Window & {
@@ -98,7 +104,7 @@ type IdleWindow = Window & {
 };
 
 function getExpandedImagePath(post: BlogPost) {
-  return expandedImagePaths[post.title] ?? null;
+  return post.imagePath ?? expandedImagePaths[post.title] ?? null;
 }
 
 function preloadExpandedImage(url: string) {
@@ -229,8 +235,8 @@ export const BlogPageNew = React.memo(function BlogPageNew({
   );
 
   const categories = React.useMemo(
-    () => Array.from(new Set(siteData.updates.map((post) => post.category))),
-    []
+    () => Array.from(new Set(allPosts.map((post) => post.category))),
+    [allPosts]
   );
 
   const filteredPosts = React.useMemo(() => {
@@ -1193,7 +1199,6 @@ export const BlogPageNew = React.memo(function BlogPageNew({
                               >
                                 {expanded ? "Show less" : "Read more"}
                               </button>
-
                             </div>
                           )}
                         </article>

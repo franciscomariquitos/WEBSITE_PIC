@@ -17,9 +17,6 @@ import { useIsMobile } from "./hooks/useIsMobile";
 import { useReducedMotion } from "./hooks/useReducedMotion";
 import { ResponsiveProvider } from "./context/ResponsiveContext";
 
-const isProductIntro3DEnabled =
-  import.meta.env.VITE_ENABLE_PRODUCT_INTRO_3D !== "false";
-
 function loadBlogPageNew() {
   return import("./components/BlogPageNew");
 }
@@ -56,14 +53,6 @@ const NaviCareDashboard = React.lazy(() =>
     default: module.NaviCareDashboard,
   }))
 );
-
-const ProductIntroSection = isProductIntro3DEnabled
-  ? React.lazy(() =>
-      import("./components/ProductIntroSection").then((module) => ({
-        default: module.ProductIntroSection,
-      }))
-    )
-  : null;
 
 export default function App() {
   const isMobile = useIsMobile();
@@ -213,13 +202,7 @@ export default function App() {
           <Header />
 
           <main style={styles.main}>
-            {ProductIntroSection ? (
-              <React.Suspense fallback={null}>
-                <ProductIntroSection />
-              </React.Suspense>
-            ) : (
-              <HeroSection />
-            )}
+            <HeroSection />
             <AboutSection />
             <EcosystemSection />
             <TrackerSection />

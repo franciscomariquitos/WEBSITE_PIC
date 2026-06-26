@@ -1,13 +1,9 @@
-import React, { useMemo } from "react";
-import vesticon from "../assets/optimized/vesticon.webp";
-
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowDown,
-  CalendarDays,
   CheckCircle2,
   ChevronRight,
-  Clock3,
   Clapperboard,
   Code2,
   Database,
@@ -16,13 +12,10 @@ import {
   HardHat,
   Mail,
   FileText,
-  Gauge,
   Lightbulb,
   Linkedin,
-  MapPinned,
   RadioTower,
   ShieldAlert,
-  Smartphone,
   CircuitBoard,
   Presentation,
   UserRound,
@@ -60,6 +53,15 @@ const teamPhotos: Record<string, string> = {
   "Frederico Pinto": fred,
 };
 
+const controlBoxFrameUrls = Array.from({ length: 101 }, (_value, index) => {
+  const frameNumber = Math.min(301, 1 + index * 3);
+  return withBaseUrl(`animations/box-frames/frame-${String(frameNumber).padStart(4, "0")}.webp`);
+});
+const vestPreviewImage = withBaseUrl("showcase/vest/colete navisense.png");
+const heroResourcePaths = siteData.project.resources;
+const fallbackAppPreviewImage = withBaseUrl("blog-updates/05-mobile-app-launched.png");
+
+
 const teamRoleIcons = {
   "Francisco Mariquitos": { icon: RadioTower, accent: "#5FA9E8", label: "Connectivity" },
   "Raquel Barroso": { icon: CircuitBoard, accent: "#A88FFF", label: "Engineering" },
@@ -69,6 +71,818 @@ const teamRoleIcons = {
   "Frederico Pinto": { icon: Database, accent: "#A88FFF", label: "Dashboard" },
 } as const;
 
+function PreviewAssetImage({
+  src,
+  fallbackSrc,
+  alt,
+  accent,
+  label,
+  isPhone = false,
+}: {
+  src?: string;
+  fallbackSrc?: string;
+  alt: string;
+  accent: string;
+  label: string;
+  isPhone?: boolean;
+}) {
+  const [failed, setFailed] = useState(false);
+  const imageSrc = !failed && src ? withBaseUrl(src) : fallbackSrc ? withBaseUrl(fallbackSrc) : null;
+
+  if (!imageSrc) {
+    return (
+      <div
+        style={{
+          minHeight: isPhone ? 260 : 220,
+          aspectRatio: isPhone ? "459 / 821" : undefined,
+          borderRadius: isPhone ? "16% / 7%" : 20,
+          border: `1px dashed ${accent}55`,
+          background: `linear-gradient(145deg, ${accent}14 0%, rgba(255,255,255,0.03) 100%)`,
+          display: "grid",
+          placeItems: "center",
+          color: "rgba(224, 228, 233, 0.72)",
+          textAlign: "center",
+          padding: 18,
+          lineHeight: 1.5,
+          fontWeight: 600,
+        }}
+      >
+        {label}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={imageSrc}
+      alt={alt}
+      loading="eager"
+      decoding="async"
+      onError={() => setFailed(true)}
+      style={{
+        display: "block",
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        aspectRatio: isPhone ? "459 / 821" : undefined,
+        borderRadius: isPhone ? "16% / 7%" : 18,
+        boxShadow: isPhone ? "none" : "0 20px 40px rgba(2, 6, 23, 0.24)",
+      }}
+    />
+  );
+}
+
+function ControlBoxLoopPreview() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const framesRef = useRef<HTMLImageElement[]>([]);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadFrame = (url: string) =>
+      new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error(`Failed to load ${url}`));
+        image.src = url;
+      });
+
+    void Promise.all(controlBoxFrameUrls.map((url) => loadFrame(url)))
+      .then((frames) => {
+        if (cancelled) {
+          return;
+        }
+
+        framesRef.current = frames;
+        setReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setReady(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!ready) {
+      return undefined;
+    }
+
+    const canvas = canvasRef.current;
+    const frames = framesRef.current;
+    const context = canvas?.getContext("2d");
+
+    if (!canvas || !context || !frames.length) {
+      return undefined;
+    }
+
+    let frameIndex = 0;
+    let direction = 1;
+    let animationFrameId = 0;
+    let lastFrameAt = 0;
+    const frameDurationMs = 1000 / 22;
+
+    const drawFrame = (image: HTMLImageElement) => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(1, Math.round(rect.width * dpr));
+      const height = Math.max(1, Math.round(rect.height * dpr));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      context.clearRect(0, 0, width, height);
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+
+      const rotationRad = -Math.PI / 4;
+      const rotationCos = Math.abs(Math.cos(rotationRad));
+      const rotationSin = Math.abs(Math.sin(rotationRad));
+      const rotatedWidth = image.naturalWidth * rotationCos + image.naturalHeight * rotationSin;
+      const rotatedHeight = image.naturalWidth * rotationSin + image.naturalHeight * rotationCos;
+      const scale = Math.min(width / rotatedWidth, height / rotatedHeight) * 1.47;
+      const drawWidth = image.naturalWidth * scale;
+      const drawHeight = image.naturalHeight * scale;
+
+      context.save();
+      context.translate(width / 2, height / 2);
+      context.rotate(rotationRad);
+      context.drawImage(image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+      context.restore();
+    };
+
+    const handleResize = () => {
+      drawFrame(frames[frameIndex]);
+    };
+
+    const tick = (time: number) => {
+      if (!lastFrameAt || time - lastFrameAt >= frameDurationMs) {
+        lastFrameAt = time;
+        drawFrame(frames[frameIndex]);
+
+        let nextIndex = frameIndex + direction;
+        if (nextIndex >= frames.length - 1) {
+          direction = -1;
+          nextIndex = frames.length - 1;
+        } else if (nextIndex <= 0) {
+          direction = 1;
+          nextIndex = 0;
+        }
+
+        frameIndex = nextIndex;
+      }
+
+      animationFrameId = window.requestAnimationFrame(tick);
+    };
+
+    drawFrame(frames[0]);
+    window.addEventListener("resize", handleResize);
+    animationFrameId = window.requestAnimationFrame(tick);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [ready]);
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        minHeight: 0,
+        alignSelf: "stretch",
+        justifySelf: "stretch",
+        overflow: "hidden",
+      }}
+    >
+      {ready ? (
+        <canvas
+          ref={canvasRef}
+          aria-label="Animated control box preview"
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "block",
+            width: "100%",
+            height: "100%",
+            filter:
+              "drop-shadow(0 30px 40px rgba(2, 6, 23, 0.36)) drop-shadow(0 0 30px rgba(95, 169, 232, 0.18))",
+          }}
+        />
+      ) : (
+        <img
+          src={controlBoxFrameUrls[0]}
+          alt="Animated control box preview"
+          loading="eager"
+          decoding="async"
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "block",
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            transform: "rotate(-45deg) scale(1.08)",
+            filter:
+              "drop-shadow(0 30px 40px rgba(2, 6, 23, 0.36)) drop-shadow(0 0 30px rgba(95, 169, 232, 0.18))",
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function PartnerLogoBadge({
+  partner,
+  isMobile,
+}: {
+  partner: (typeof siteData.partners)[number];
+  isMobile: boolean;
+}) {
+  const [failed, setFailed] = useState(false);
+  const isIstLogo = partner.logoPath?.includes("ist.png") ?? false;
+  const logoPath = partner.logoPath ? withBaseUrl(partner.logoPath) : null;
+
+  if (logoPath && !failed) {
+    return (
+      <div
+        style={{
+          width: isMobile ? 136 : 172,
+          height: isMobile ? 74 : 90,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          boxSizing: "border-box",
+        }}
+      >
+        <img
+          src={logoPath}
+          alt={`${partner.name} logo`}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+          style={{
+            display: "block",
+            width: isIstLogo ? "158%" : "100%",
+            height: isIstLogo ? "158%" : "100%",
+            objectFit: "contain",
+            objectPosition: "left center",
+            filter: "drop-shadow(0 12px 18px rgba(2, 6, 23, 0.22))",
+          }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        width: 64,
+        height: 64,
+        borderRadius: 18,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        border: "1px solid rgba(95, 169, 232, 0.18)",
+        background: "rgba(95, 169, 232, 0.10)",
+        color: "#dbeafe",
+        fontWeight: 700,
+        fontSize: isMobile ? 16 : 18,
+      }}
+    >
+      {partner.logo}
+    </div>
+  );
+}
+
+function PrototypePreviewPanel({
+  isMobile,
+  styles,
+}: {
+  isMobile: boolean;
+  styles: Record<string, React.CSSProperties>;
+}) {
+  const panelLayout = isMobile
+    ? {
+        panelLeft: 6,
+        panelRight: 97,
+        panelTop: 18,
+        panelBottom: 99,
+      }
+    : {
+        panelLeft: 28,
+        panelRight: 98,
+        panelTop: 4,
+        panelBottom: 99,
+      };
+  const [zoomConnector, setZoomConnector] = useState({
+    pocketTipX: isMobile ? 29 : 20.5,
+    pocketTipY: isMobile ? 29 : 26.5,
+    pocketTopX: isMobile ? 28.7 : 20.3,
+    pocketTopY: isMobile ? 26.5 : 24,
+    pocketBottomX: isMobile ? 29.3 : 20.7,
+    pocketBottomY: isMobile ? 31.5 : 29,
+    tipMarkerRadiusX: isMobile ? 0.82 : 1.15,
+    tipMarkerRadiusY: 1.4,
+    ...panelLayout,
+  });
+  const zoomStageRef = useRef<HTMLDivElement>(null);
+  const vestImageRef = useRef<HTMLImageElement>(null);
+  const boxPanelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const stage = zoomStageRef.current;
+    const vest = vestImageRef.current;
+    const panel = boxPanelRef.current;
+
+    if (!stage || !vest || !panel) {
+      return;
+    }
+
+    let frameId = 0;
+
+    const measureConnector = () => {
+      const stageRect = stage.getBoundingClientRect();
+      const vestRect = vest.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
+
+      if (!stageRect.width || !stageRect.height || !vestRect.width || !vestRect.height || !panelRect.width || !panelRect.height) {
+        return;
+      }
+
+      const toX = (value: number) => ((value - stageRect.left) / stageRect.width) * 100;
+      const toY = (value: number) => ((value - stageRect.top) / stageRect.height) * 100;
+      const sourceXRatio = 0.5;
+      const sourceTipRatio = 0.72;
+      const sourceSpreadRatio = 0.055;
+
+      const pocketTipX = toX(vestRect.left + vestRect.width * sourceXRatio);
+      const pocketTipY = toY(vestRect.top + vestRect.height * sourceTipRatio);
+
+      const nextConnector = {
+        pocketTipX,
+        pocketTipY,
+        pocketTopX: pocketTipX,
+        pocketTopY: toY(vestRect.top + vestRect.height * (sourceTipRatio - sourceSpreadRatio)),
+        pocketBottomX: pocketTipX,
+        pocketBottomY: toY(vestRect.top + vestRect.height * (sourceTipRatio + sourceSpreadRatio)),
+        tipMarkerRadiusX: (stageRect.height / stageRect.width) * 1.4,
+        tipMarkerRadiusY: 1.4,
+        panelLeft: toX(panelRect.left),
+        panelRight: toX(panelRect.right),
+        panelTop: toY(panelRect.top),
+        panelBottom: toY(panelRect.bottom),
+      };
+
+      setZoomConnector((current) => {
+        const hasMeaningfulChange = Object.keys(nextConnector).some((key) => {
+          const connectorKey = key as keyof typeof nextConnector;
+          return Math.abs(current[connectorKey] - nextConnector[connectorKey]) > 0.15;
+        });
+
+        return hasMeaningfulChange ? nextConnector : current;
+      });
+    };
+
+    const scheduleMeasure = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(measureConnector);
+    };
+
+    scheduleMeasure();
+
+    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleMeasure);
+    resizeObserver?.observe(stage);
+    resizeObserver?.observe(vest);
+    resizeObserver?.observe(panel);
+    window.addEventListener("resize", scheduleMeasure);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", scheduleMeasure);
+    };
+  }, [isMobile]);
+
+  return (
+    <motion.div
+      style={{
+        ...styles.heroEcosystemVisual,
+        width: "100%",
+        maxWidth: 1180,
+        minHeight: 0,
+        padding: 0,
+        border: "none",
+        background: "transparent",
+        boxShadow: "none",
+        overflow: "visible",
+        gridTemplateRows: "auto",
+        gap: 0,
+      }}
+      initial={false}
+      animate={{ opacity: 1 }}
+    >
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          display: "grid",
+          gap: isMobile ? 10 : 12,
+          paddingTop: 0,
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1.34fr) 72px minmax(280px, 0.82fr)",
+            gap: isMobile ? 16 : 20,
+            alignItems: isMobile ? "stretch" : "center",
+          }}
+        >
+          <article
+            style={{
+              minWidth: 0,
+              padding: isMobile ? 16 : 18,
+              borderRadius: 26,
+              border: "1px solid rgba(95, 169, 232, 0.18)",
+              background:
+                "linear-gradient(165deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.028) 58%, rgba(95,169,232,0.05) 100%)",
+              boxShadow: "0 22px 40px rgba(2, 6, 23, 0.18)",
+              display: "grid",
+              gap: 10,
+              overflow: "hidden",
+              alignSelf: isMobile ? "stretch" : "center",
+            }}
+          >
+            <div style={styles.heroVisualLabel}>Electronics box</div>
+
+            <div
+              ref={zoomStageRef}
+              style={{
+                position: "relative",
+                height: isMobile ? 430 : 540,
+                borderRadius: 24,
+                border: "1px solid rgba(95, 169, 232, 0.14)",
+                background:
+                  "radial-gradient(circle at 22% 24%, rgba(95,169,232,0.14) 0%, rgba(95,169,232,0.05) 26%, transparent 48%), radial-gradient(circle at 78% 62%, rgba(95,169,232,0.18) 0%, rgba(95,169,232,0.07) 34%, transparent 58%), linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.025) 100%)",
+                overflow: "hidden",
+              }}
+            >
+              <img
+                ref={vestImageRef}
+                src={vestPreviewImage}
+                alt="NAVISense vest preview"
+                loading="eager"
+                decoding="async"
+                style={{
+                  position: "absolute",
+                  left: isMobile ? 18 : 24,
+                  top: isMobile ? 18 : 20,
+                  width: isMobile ? 86 : 112,
+                  height: "auto",
+                  filter: "drop-shadow(0 0 18px rgba(95, 169, 232, 0.24))",
+                }}
+              />
+
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  pointerEvents: "none",
+                }}
+              >
+                <defs>
+                  <marker
+                    id="vest-zoom-arrow"
+                    markerWidth="5"
+                    markerHeight="5"
+                    refX="4.4"
+                    refY="2.5"
+                    orient="auto"
+                    markerUnits="strokeWidth"
+                  >
+                    <path d="M 0 0 L 5 2.5 L 0 5 z" fill="rgba(95, 169, 232, 0.24)" />
+                  </marker>
+                </defs>
+                <polygon
+                  points={`${zoomConnector.pocketTopX},${zoomConnector.pocketTopY} ${zoomConnector.panelLeft},${zoomConnector.panelTop} ${zoomConnector.panelLeft},${zoomConnector.panelBottom} ${zoomConnector.pocketBottomX},${zoomConnector.pocketBottomY}`}
+                  fill="rgba(95, 169, 232, 0.004)"
+                />
+                <rect
+                  x={zoomConnector.panelLeft}
+                  y={zoomConnector.panelTop}
+                  width={zoomConnector.panelRight - zoomConnector.panelLeft}
+                  height={zoomConnector.panelBottom - zoomConnector.panelTop}
+                  rx="2.2"
+                  fill="none"
+                  stroke="rgba(95, 169, 232, 0.025)"
+                  strokeWidth="0.18"
+                />
+                <line
+                  x1={zoomConnector.pocketTopX}
+                  y1={zoomConnector.pocketTopY}
+                  x2={zoomConnector.pocketBottomX}
+                  y2={zoomConnector.pocketBottomY}
+                  stroke="rgba(95, 169, 232, 0.18)"
+                  strokeWidth="0.18"
+                  strokeLinecap="round"
+                />
+                <ellipse
+                  cx={zoomConnector.pocketTipX}
+                  cy={zoomConnector.pocketTipY}
+                  rx={zoomConnector.tipMarkerRadiusX}
+                  ry={zoomConnector.tipMarkerRadiusY}
+                  fill="rgba(95, 169, 232, 0.16)"
+                  stroke="rgba(95, 169, 232, 0.48)"
+                  strokeWidth="0.22"
+                />
+                <line
+                  x1={zoomConnector.pocketTipX}
+                  y1={zoomConnector.pocketTipY}
+                  x2={zoomConnector.panelLeft}
+                  y2={zoomConnector.panelTop}
+                  stroke="rgba(95, 169, 232, 0.26)"
+                  strokeWidth="0.28"
+                  strokeLinecap="round"
+                  markerEnd="url(#vest-zoom-arrow)"
+                />
+                <line
+                  x1={zoomConnector.pocketTipX}
+                  y1={zoomConnector.pocketTipY}
+                  x2={zoomConnector.panelLeft}
+                  y2={zoomConnector.panelBottom}
+                  stroke="rgba(95, 169, 232, 0.26)"
+                  strokeWidth="0.28"
+                  strokeLinecap="round"
+                  markerEnd="url(#vest-zoom-arrow)"
+                />
+                <line
+                  x1={zoomConnector.panelLeft}
+                  y1={zoomConnector.panelTop}
+                  x2={zoomConnector.panelLeft}
+                  y2={zoomConnector.panelBottom}
+                  stroke="rgba(95, 169, 232, 0.13)"
+                  strokeWidth="0.3"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={zoomConnector.panelLeft}
+                  y1={zoomConnector.panelTop}
+                  x2={zoomConnector.panelLeft + 5}
+                  y2={zoomConnector.panelTop}
+                  stroke="rgba(95, 169, 232, 0.30)"
+                  strokeWidth="0.44"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={zoomConnector.panelLeft}
+                  y1={zoomConnector.panelBottom}
+                  x2={zoomConnector.panelLeft + 5}
+                  y2={zoomConnector.panelBottom}
+                  stroke="rgba(95, 169, 232, 0.30)"
+                  strokeWidth="0.44"
+                  strokeLinecap="round"
+                />
+              </svg>
+
+              <div
+                ref={boxPanelRef}
+                style={{
+                  position: "absolute",
+                  left: `${panelLayout.panelLeft}%`,
+                  right: `${100 - panelLayout.panelRight}%`,
+                  top: `${panelLayout.panelTop}%`,
+                  bottom: `${100 - panelLayout.panelBottom}%`,
+                  borderRadius: 22,
+                  border: "1px solid rgba(95, 169, 232, 0.14)",
+                  background:
+                    "radial-gradient(circle at 50% 42%, rgba(95,169,232,0.18) 0%, rgba(95,169,232,0.055) 40%, transparent 68%), linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.025) 100%)",
+                  overflow: "hidden",
+                  padding: isMobile ? 14 : 18,
+                  boxSizing: "border-box",
+                }}
+              >
+                <ControlBoxLoopPreview />
+              </div>
+            </div>
+          </article>
+
+          <div
+            aria-hidden="true"
+            style={{
+              position: "relative",
+              minHeight: isMobile ? 82 : 360,
+              height: "100%",
+              width: "100%",
+              alignSelf: isMobile ? "center" : "stretch",
+              display: "grid",
+              placeItems: "center",
+              color: colors.cyan2,
+            }}
+          >
+            {isMobile ? (
+              <div
+                style={{
+                  position: "relative",
+                  width: 2,
+                  height: 74,
+                  borderRadius: 999,
+                  background: "linear-gradient(180deg, rgba(95,169,232,0.18), rgba(95,169,232,0.72))",
+                  boxShadow: "0 0 14px rgba(95, 169, 232, 0.18)",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    bottom: -7,
+                    width: 0,
+                    height: 0,
+                    transform: "translateX(-50%)",
+                    borderLeft: "5px solid transparent",
+                    borderRight: "5px solid transparent",
+                    borderTop: "8px solid rgba(95, 169, 232, 0.70)",
+                  }}
+                />
+              </div>
+            ) : (
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  height: 320,
+                  minWidth: 72,
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "50%",
+                    width: "58%",
+                    height: 2,
+                    transform: "translateY(-50%)",
+                    borderRadius: 999,
+                    background: "rgba(95, 169, 232, 0.52)",
+                    boxShadow: "0 0 12px rgba(95, 169, 232, 0.18)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "58%",
+                    top: "24%",
+                    bottom: "24%",
+                    width: 2,
+                    transform: "translateX(-50%)",
+                    borderRadius: 999,
+                    background: "rgba(95, 169, 232, 0.42)",
+                    boxShadow: "0 0 12px rgba(95, 169, 232, 0.16)",
+                  }}
+                />
+                {[24, 76].map((top, index) => (
+                  <React.Fragment key={top}>
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "58%",
+                        right: 6,
+                        top: `${top}%`,
+                        height: 2,
+                        transform: "translateY(-50%)",
+                        borderRadius: 999,
+                        background: index === 0 ? "rgba(168, 143, 255, 0.58)" : "rgba(95, 169, 232, 0.58)",
+                        boxShadow: "0 0 12px rgba(95, 169, 232, 0.16)",
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        right: 0,
+                        top: `${top}%`,
+                        width: 0,
+                        height: 0,
+                        transform: "translateY(-50%)",
+                        borderTop: "5px solid transparent",
+                        borderBottom: "5px solid transparent",
+                        borderLeft: `9px solid ${index === 0 ? "rgba(168, 143, 255, 0.68)" : "rgba(95, 169, 232, 0.68)"}`,
+                      }}
+                    />
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gridTemplateRows: "auto auto",
+              gap: isMobile ? 14 : 16,
+              alignItems: "stretch",
+            }}
+          >
+            <article
+              style={{
+                minWidth: 0,
+                padding: isMobile ? 14 : 15,
+                borderRadius: 22,
+                border: "1px solid rgba(168, 143, 255, 0.18)",
+                background:
+                  "linear-gradient(165deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.028) 58%, rgba(168,143,255,0.045) 100%)",
+                boxShadow: "0 22px 40px rgba(2, 6, 23, 0.18)",
+                display: "grid",
+                gap: 10,
+              }}
+            >
+              <div style={{ ...styles.heroVisualLabel, color: "#c4b5fd" }}>Mobile app</div>
+              <div
+                style={{
+                  justifySelf: "center",
+                  width: "min(100%, 210px)",
+                  aspectRatio: "459 / 821",
+                  padding: 0,
+                  borderRadius: "16% / 7%",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "transparent",
+                  overflow: "hidden",
+                  boxShadow: "0 16px 30px rgba(0,0,0,0.20)",
+                }}
+              >
+                <PreviewAssetImage
+                  src={heroResourcePaths.appPreviewImage}
+                  fallbackSrc={fallbackAppPreviewImage}
+                  alt="NAVISense mobile app preview"
+                  accent="#A88FFF"
+                  label="Add the mobile app screenshot at public/showcase/mobile-app-preview.png"
+                  isPhone
+                />
+              </div>
+            </article>
+
+
+            <motion.a
+              href="#navicare"
+              aria-label="Open NaviCare dashboard"
+              style={{
+                minWidth: 0,
+                padding: isMobile ? 18 : 18,
+                borderRadius: 24,
+                border: "1px solid rgba(95, 169, 232, 0.18)",
+                background:
+                  "linear-gradient(165deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.028) 58%, rgba(95,169,232,0.045) 100%)",
+                boxShadow: "0 22px 40px rgba(2, 6, 23, 0.18)",
+                display: "grid",
+                gap: 14,
+                color: "inherit",
+                textDecoration: "none",
+                cursor: "pointer",
+              }}
+              whileHover={{ y: -3, borderColor: "rgba(95, 169, 232, 0.34)" }}
+              whileTap={{ scale: 0.99 }}
+            >
+              <div style={styles.heroVisualLabel}>NaviCare system</div>
+              <div
+                style={{
+                  minHeight: isMobile ? 220 : 260,
+                  borderRadius: 22,
+                  border: "1px solid rgba(95, 169, 232, 0.14)",
+                  background:
+                    "linear-gradient(160deg, rgba(8,16,54,0.70) 0%, rgba(15,25,74,0.44) 58%, rgba(95,169,232,0.05) 100%)",
+                  overflow: "hidden",
+                  padding: 12,
+                }}
+              >
+                <PreviewAssetImage
+                  src={heroResourcePaths.navicarePreviewImage}
+                  alt="NaviCare dashboard preview"
+                  accent="#5FA9E8"
+                  label="Add the NaviCare screenshot at public/showcase/navicare-preview.png"
+                />
+              </div>
+            </motion.a>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 export function Header() {
   const { isMobile, styles } = useResponsiveStyles();
@@ -93,14 +907,6 @@ export function Header() {
                 {item}
               </a>
             ))}
-            <a
-              href="#navicare"
-              style={styles.downloadButton}
-              tabIndex={0}
-              aria-label="Open NaviCare monitor"
-            >
-              NaviCare
-            </a>
           </nav>
         )}
       </div>
@@ -136,30 +942,6 @@ function SectionHeading({
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const { styles } = useResponsiveStyles();
-  const map: Record<string, React.CSSProperties> = {
-    Done: { background: "rgba(16,185,129,0.16)", color: "#a7f3d0", borderColor: "rgba(16,185,129,0.25)" },
-    "In Progress": { background: "rgba(34,211,238,0.16)", color: "#a5f3fc", borderColor: "rgba(34,211,238,0.25)" },
-    "To Do": { background: "rgba(148,163,184,0.16)", color: "#cbd5e1", borderColor: "rgba(148,163,184,0.25)" },
-    Delayed: { background: "rgba(244,63,94,0.16)", color: "#fecdd3", borderColor: "rgba(244,63,94,0.25)" },
-  };
-  return <span style={{ ...styles.statusBadge, ...map[status] }}>{status}</span>;
-}
-
-function PriorityBadge({ priority }: { priority: string }) {
-  const { styles } = useResponsiveStyles();
-  const map: Record<string, React.CSSProperties> = {
-    High: { background: "rgba(245,158,11,0.16)", color: "#fde68a", borderColor: "rgba(245,158,11,0.25)" },
-    Medium: { background: "rgba(168,85,247,0.16)", color: "#e9d5ff", borderColor: "rgba(168,85,247,0.25)" },
-    Low: { background: "rgba(148,163,184,0.16)", color: "#cbd5e1", borderColor: "rgba(148,163,184,0.25)" },
-  };
-  return <span style={{ ...styles.statusBadge, ...map[priority] }}>{priority}</span>;
-}
-
-type TrackerItem = (typeof siteData.tracker)[number];
-type TrackerStatus = TrackerItem["status"];
-
 const trackerRoadmap = [
   {
     period: "February",
@@ -176,53 +958,16 @@ const trackerRoadmap = [
   {
     period: "May",
     title: "Validate",
-    desc: "Prototype testing, poster work, latency checks, and reliability refinement.",
-    state: "current",
+    desc: "Prototype testing, poster work, latency checks, and reliability refinement completed.",
+    state: "complete",
   },
   {
     period: "Late May-June",
     title: "Showcase",
-    desc: "Poster, demonstration video, and final presentation assets.",
-    state: "upcoming",
+    desc: "Poster, demonstration video, dashboard, and final presentation assets completed.",
+    state: "complete",
   },
 ];
-
-function getTrackerStatusTone(status: TrackerStatus) {
-  switch (status) {
-    case "Done":
-      return {
-        accent: "#34d399",
-        border: "rgba(52, 211, 153, 0.20)",
-        surface: "rgba(52, 211, 153, 0.08)",
-        glow: "rgba(52, 211, 153, 0.28)",
-        text: "#a7f3d0",
-      };
-    case "In Progress":
-      return {
-        accent: "#5FA9E8",
-        border: "rgba(95, 169, 232, 0.24)",
-        surface: "rgba(95, 169, 232, 0.10)",
-        glow: "rgba(95, 169, 232, 0.28)",
-        text: "#cbe7fb",
-      };
-    case "Delayed":
-      return {
-        accent: "#fb7185",
-        border: "rgba(251, 113, 133, 0.22)",
-        surface: "rgba(251, 113, 133, 0.10)",
-        glow: "rgba(251, 113, 133, 0.24)",
-        text: "#fecdd3",
-      };
-    default:
-      return {
-        accent: "#94a3b8",
-        border: "rgba(148, 163, 184, 0.20)",
-        surface: "rgba(148, 163, 184, 0.08)",
-        glow: "rgba(148, 163, 184, 0.16)",
-        text: "#e2e8f0",
-      };
-  }
-}
 
 function BlogCard({ post, onReadMore }: { post: (typeof siteData.updates)[number]; onReadMore?: (post: (typeof siteData.updates)[number]) => void }) {
   const { disableMotion, styles } = useResponsiveStyles();
@@ -259,127 +1004,90 @@ export function HeroSection() {
       initial={false}
       animate={{ opacity: 1 }}
     >
-      <motion.div style={styles.heroProductGrid} initial={false} animate={{ opacity: 1 }}>
-        <motion.div style={styles.heroProductCopy} initial={false} animate={{ opacity: 1 }}>
-          <div style={styles.heroEyebrow}>
-            <span style={styles.heroEyebrowDot} />
-            Assistive wearable ecosystem
-          </div>
-
+      <motion.div
+        style={{
+          ...styles.heroProductGrid,
+          gridTemplateColumns: "1fr",
+          gap: isMobile ? 24 : 32,
+          justifyItems: "center",
+          maxWidth: 1320,
+        }}
+        initial={false}
+        animate={{ opacity: 1 }}
+      >
+        <motion.div
+          style={{
+            ...styles.heroProductCopy,
+            justifyItems: "center",
+            textAlign: "center",
+            maxWidth: 860,
+          }}
+          initial={false}
+          animate={{ opacity: 1 }}
+        >
           <h1 style={styles.heroProductTitle}>NAVISense Vest</h1>
 
           <p style={styles.heroProductSubtitle}>{siteData.project.subtitle}</p>
 
-          <div style={{ ...styles.heroActions, justifyContent: isMobile ? "center" : "flex-start" }}>
+          <div style={{ ...styles.heroActions, justifyContent: "center" }}>
             <motion.a
-              href="#navicare"
+              href={withBaseUrl(heroResourcePaths.pitchDeckUrl)}
+              target="_blank"
+              rel="noreferrer"
               style={styles.heroPrimaryButton}
             >
-              <ShieldAlert size={17} />
-              Open NaviCare
+              <Presentation size={17} />
+              Pitch deck
             </motion.a>
 
             <motion.a
-              href={withBaseUrl("proposal.pdf")}
-              download="NAVISense_Project_Proposal.pdf"
+              href={withBaseUrl(heroResourcePaths.posterUrl)}
+              target="_blank"
+              rel="noreferrer"
               style={styles.heroGhostButton}
             >
               <FileText size={16} />
-              Project proposal
+              Poster
             </motion.a>
 
             <motion.a
-              href="#ecosystem"
-              style={styles.scrollLink}
+              href={heroResourcePaths.videoUrl}
+              target="_blank"
+              rel="noreferrer"
+              style={styles.heroGhostButton}
             >
-              Explore system <ArrowDown size={16} />
+              <Clapperboard size={16} />
+              Our video
             </motion.a>
           </div>
-        </motion.div>
 
-        <motion.div style={styles.heroEcosystemVisual} initial={false} animate={{ opacity: 1 }}>
-          <div style={styles.heroVisualGlow} aria-hidden="true" />
-
-          <div style={styles.heroVisualHeader}>
-            <div>
-              <div style={styles.heroVisualLabel}>Ecosystem flow</div>
-              <div style={styles.heroVisualTitle}>Wearable to app to NaviCare</div>
-            </div>
-            <div style={styles.heroSignalPill}>
-              <span style={styles.heroSignalDot} />
-              Live link
-            </div>
+          <div style={{ display: "flex", justifyContent: "center", marginTop: isMobile ? 12 : 14 }}>
+            <motion.a href="#navicare" style={{ ...styles.heroGhostButton, borderColor: "rgba(95, 169, 232, 0.28)", background: "rgba(95, 169, 232, 0.10)" }}>
+              <ShieldAlert size={16} />
+              Open NaviCare
+            </motion.a>
           </div>
 
-          <div style={styles.heroFlowGrid}>
-            <article style={{ ...styles.heroFlowNode, ...styles.heroWearableNode }}>
-              <div style={styles.heroFlowNodeHeader}>
-                <span style={styles.heroVisualLabel}>Wearable layer</span>
-                <RadioTower size={16} />
-              </div>
-              <div style={styles.heroVestStage}>
-                <img
-                  src={vesticon}
-                  alt="NAVISense vest icon"
-                  style={styles.heroVestIconLarge}
-                  role="img"
-                  aria-label="NAVISense vest icon"
-                />
-              </div>
-              <div style={styles.heroNodeFooter}>
-                <RadioTower size={15} />
-                Sensing + haptics
-              </div>
-            </article>
-
-            <div style={styles.heroFlowStack}>
-              <article style={{ ...styles.heroFlowNode, ...styles.heroFlowNodeCompact }}>
-                <div style={styles.heroFlowNodeHeader}>
-                  <span style={styles.heroVisualLabel}>Android bridge</span>
-                  <Smartphone size={16} />
-                </div>
-                <div style={styles.heroBridgeGraphic}>
-                  <div style={styles.heroBridgePerson}>
-                    <UserRound size={28} />
-                  </div>
-                  <span style={styles.heroBridgeSignal} />
-                  <div style={styles.heroBridgePhone}>
-                    <Smartphone size={30} />
-                    <span style={styles.heroPhoneStatusDot} />
-                  </div>
-                </div>
-                <div style={styles.heroNodeFooter}>
-                  <Smartphone size={15} />
-                  Location + status bridge
-                </div>
-              </article>
-
-              <article style={{ ...styles.heroFlowNode, ...styles.heroFlowNodeCompact, ...styles.heroNaviCareNode }}>
-                <div style={styles.heroNaviCareMapBackdrop} aria-hidden="true">
-                  <span style={styles.heroMapRegionA} />
-                  <span style={styles.heroMapRegionB} />
-                  <span style={styles.heroDashboardRoute} />
-                  <span style={styles.heroMapMarker} />
-                </div>
-                <div style={styles.heroFlowNodeHeader}>
-                  <span style={styles.heroVisualLabel}>NaviCare</span>
-                  <MapPinned size={16} />
-                </div>
-                <div style={styles.heroDashboardMap}>
-                  <span style={styles.heroMapRegionA} />
-                  <span style={styles.heroMapRegionB} />
-                  <span style={styles.heroDashboardRoute} />
-                  <span style={styles.heroMapMarker} />
-                </div>
-                <div style={styles.heroNodeFooter}>
-                  <Gauge size={15} />
-                  Remote monitoring view
-                </div>
-              </article>
-            </div>
+          <div
+            style={{
+              marginTop: isMobile ? 8 : 10,
+              display: "grid",
+              justifyItems: "center",
+              gap: 6,
+              color: "rgba(224, 228, 233, 0.74)",
+              fontSize: isMobile ? 13 : 14,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              pointerEvents: "none",
+              userSelect: "none",
+            }}
+          >
+            <span>Explore our project</span>
+            <ArrowDown size={18} strokeWidth={1.8} aria-hidden="true" />
           </div>
-
         </motion.div>
+
       </motion.div>
     </motion.section>
   );
@@ -446,6 +1154,10 @@ export function EcosystemSection() {
             </article>
           );
         })}
+      </div>
+
+      <div style={{ marginTop: isMobile ? 34 : 56 }}>
+        <PrototypePreviewPanel isMobile={isMobile} styles={styles} />
       </div>
     </motion.section>
   );
@@ -708,23 +1420,7 @@ export function PartnersSection() {
                   gap: 16,
                 }}
               >
-                <div
-                  style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: 18,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "1px solid rgba(95, 169, 232, 0.18)",
-                    background: "rgba(95, 169, 232, 0.10)",
-                    color: "#dbeafe",
-                    fontWeight: 700,
-                    fontSize: 18,
-                  }}
-                >
-                  {partner.logo}
-                </div>
+                <PartnerLogoBadge partner={partner} isMobile={isMobile} />
 
                 <div
                   style={{
@@ -829,40 +1525,24 @@ export function UpdatesSection({ onOpenBlog, onSelectPost }: { onOpenBlog?: () =
 export function TrackerSection() {
   const { disableMotion, isMobile, styles } = useResponsiveStyles();
   const fadeUp = React.useMemo(() => getFadeUp(isMobile), [isMobile]);
-  const groupedTracker = useMemo(() => {
-    const groups: Record<string, typeof siteData.tracker> = {
-      "In Progress": [],
-      "To Do": [],
-      Done: [],
-    };
-    siteData.tracker.forEach((item) => {
-      if (!groups[item.status]) {
-        groups[item.status] = [];
-      }
-
-      groups[item.status].push(item);
-    });
-    return groups;
-  }, []);
-  const totalTasks = siteData.tracker.length;
-  const overallProgress = Math.round(
-    siteData.tracker.reduce((total, item) => total + item.progress, 0) / totalTasks
-  );
-  const visibleTrackerItems = siteData.tracker
-    .filter((item) => item.status !== "Done")
-    .slice(0, 4);
+  const [showMilestonesList, setShowMilestonesList] = React.useState(false);
+  const completedMilestones = siteData.tracker.map((item) => item.title);
+  const totalTasks = completedMilestones.length;
+  const overallProgress = 100;
   const trackerStats = [
     {
       label: "Milestones done",
-      value: `${groupedTracker.Done.length}/${totalTasks}`,
+      value: `${totalTasks}/${totalTasks}`,
       icon: CheckCircle2,
       accent: "#34d399",
+      hasMilestonesList: true,
     },
     {
-      label: "In progress",
-      value: `${groupedTracker["In Progress"].length}`,
-      icon: Clock3,
-      accent: "#a5f3fc",
+      label: "Project state",
+      value: "Ready",
+      icon: ShieldAlert,
+      accent: "#5FA9E8",
+      note: "All milestones achieved",
     },
   ];
   const trackerBodyTextStyle: React.CSSProperties = {
@@ -902,6 +1582,8 @@ export function TrackerSection() {
               "linear-gradient(135deg, rgba(10, 16, 44, 0.54) 0%, rgba(14, 22, 58, 0.50) 52%, rgba(24, 20, 64, 0.38) 100%)",
             boxShadow:
               "0 18px 42px rgba(2, 6, 23, 0.13), inset 0 1px 0 rgba(255,255,255,0.05)",
+            overflow: "visible",
+            zIndex: 80,
           }}
         >
           <div
@@ -943,6 +1625,25 @@ export function TrackerSection() {
                     }}
                   >
                     Project completion
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 12,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      width: "fit-content",
+                      padding: "9px 12px",
+                      borderRadius: 999,
+                      border: "1px solid rgba(52, 211, 153, 0.22)",
+                      background: "rgba(52, 211, 153, 0.10)",
+                      color: "#a7f3d0",
+                      fontSize: 13,
+                      fontWeight: 800,
+                    }}
+                  >
+                    <CheckCircle2 size={15} />
+                    All milestones achieved
                   </div>
                 </div>
               </div>
@@ -1012,7 +1713,10 @@ export function TrackerSection() {
             </div>
 
             <div
+              onMouseLeave={() => setShowMilestonesList(false)}
               style={{
+                position: "relative",
+                zIndex: 90,
                 display: "grid",
                 gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
                 gap: 12,
@@ -1025,17 +1729,23 @@ export function TrackerSection() {
                 return (
                   <div
                     key={stat.label}
+                    tabIndex={stat.hasMilestonesList ? 0 : undefined}
+                    aria-describedby={stat.hasMilestonesList ? "completed-milestones-list" : undefined}
+                    onMouseEnter={() => stat.hasMilestonesList && setShowMilestonesList(true)}
+                    onFocus={() => stat.hasMilestonesList && setShowMilestonesList(true)}
+                    onBlur={() => stat.hasMilestonesList && setShowMilestonesList(false)}
                     style={{
                       position: "relative",
                       padding: isMobile ? 14 : 16,
-	                      borderRadius: 18,
-	                      border: `1px solid ${stat.accent}1f`,
-	                      background:
-	                        "linear-gradient(160deg, rgba(255,255,255,0.026) 0%, rgba(255,255,255,0.010) 100%)",
-	                      boxShadow: "0 10px 20px rgba(2, 6, 23, 0.07)",
+                      borderRadius: 18,
+                      border: `1px solid ${stat.accent}1f`,
+                      background:
+                        "linear-gradient(160deg, rgba(255,255,255,0.026) 0%, rgba(255,255,255,0.010) 100%)",
+                      boxShadow: "0 10px 20px rgba(2, 6, 23, 0.07)",
                       display: "grid",
                       gap: 12,
-                      overflow: "hidden",
+                      overflow: "visible",
+                      outline: "none",
                     }}
                   >
                     <div
@@ -1117,214 +1827,129 @@ export function TrackerSection() {
                         }}
                       />
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </Card>
 
-        <Card
-          style={{
-            padding: isMobile ? 18 : 22,
-	            borderRadius: isMobile ? 20 : 22,
-	            display: "grid",
-	            gap: 18,
-              borderColor: "rgba(255, 255, 255, 0.09)",
-              background:
-                "linear-gradient(160deg, rgba(14, 20, 54, 0.38) 0%, rgba(18, 24, 62, 0.42) 58%, rgba(22, 22, 66, 0.32) 100%)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: 16,
-              flexWrap: "wrap",
-            }}
-          >
-            <div
-              style={{
-                color: colors.cyan2,
-                fontFamily: '"Syne", sans-serif',
-                fontSize: isMobile ? 24 : 28,
-                lineHeight: 1,
-                letterSpacing: "-0.03em",
-              }}
-            >
-              Current milestones
-            </div>
-
-            <div
-              style={{
-                padding: "10px 14px",
-                borderRadius: 999,
-                border: "1px solid rgba(95, 169, 232, 0.16)",
-                background: "rgba(95, 169, 232, 0.10)",
-                color: colors.cyan2,
-                fontSize: 13,
-                fontWeight: 700,
-              }}
-            >
-              {visibleTrackerItems.length} active items
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gap: 14 }}>
-            {visibleTrackerItems.map((task) => {
-              const tone = getTrackerStatusTone(task.status);
-
-              return (
-                <div
-                  key={task.title}
-                  style={{
-                    position: "relative",
-                    padding: isMobile ? "16px 16px 16px 18px" : "18px 18px 18px 20px",
-	                    borderRadius: 18,
-	                    border: `1px solid ${tone.border}`,
-	                    background:
-	                      "linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)",
-	                    boxShadow: "0 14px 28px rgba(2, 6, 23, 0.10)",
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      bottom: 0,
-                      left: 0,
-                      width: 4,
-                      background: `linear-gradient(180deg, ${tone.accent} 0%, rgba(255,255,255,0) 100%)`,
-                    }}
-                  />
-
-                  <div style={{ display: "grid", gap: 16 }}>
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: isMobile ? "1fr" : "1fr auto",
-                        gap: 14,
-                        alignItems: "start",
-                      }}
-                    >
-                      <div style={{ display: "grid", gap: 10 }}>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-                          <StatusBadge status={task.status} />
-                          <PriorityBadge priority={task.priority} />
-                        </div>
-
-                        <h3
-                          style={{
-                            margin: 0,
-                            fontFamily: '"Syne", sans-serif',
-                            fontSize: isMobile ? 20 : 22,
-                            lineHeight: 1.08,
-                            letterSpacing: "-0.03em",
-                            color: "#F8FAFC",
-                            textAlign: "left",
-                          }}
-                        >
-                          {task.title}
-                        </h3>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 14,
-                            flexWrap: "wrap",
-                            color: "rgba(224, 228, 233, 0.72)",
-                            fontSize: 13,
-                          }}
-                        >
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            <Users size={14} />
-                            {task.owner}
-                          </span>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            <CalendarDays size={14} />
-                            {task.due}
-                          </span>
-                        </div>
-                      </div>
-
+                    {stat.note ? (
                       <div
                         style={{
-                          minWidth: isMobile ? 0 : 132,
-                          padding: "12px 14px",
+                          color: "rgba(224, 228, 233, 0.68)",
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {stat.note}
+                      </div>
+                    ) : null}
+
+                    {stat.hasMilestonesList && showMilestonesList ? (
+                      <div
+                        id="completed-milestones-list"
+                        role="tooltip"
+                        style={{
+                          position: "absolute",
+                          top: "calc(100% + 10px)",
+                          left: 0,
+                          zIndex: 10000,
+                          width: isMobile ? "min(100%, 360px)" : 360,
+                          padding: 16,
                           borderRadius: 18,
-                          border: `1px solid ${tone.border}`,
-                          background: tone.surface,
-                          textAlign: isMobile ? "left" : "center",
+                          border: "1px solid rgba(95, 169, 232, 0.40)",
+                          background: "rgb(1, 5, 15)",
+                          backgroundColor: "rgb(1, 5, 15)",
+                          backgroundImage: "none",
+                          opacity: 1,
+                          isolation: "isolate",
+                          mixBlendMode: "normal",
+                          transform: "translateZ(0)",
+                          boxShadow:
+                            "0 26px 56px rgba(0, 0, 0, 0.78), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 2px rgba(1, 5, 15, 1), 0 0 28px rgba(95, 169, 232, 0.24)",
                         }}
                       >
                         <div
                           style={{
-                            fontFamily: '"Syne", sans-serif',
-                            fontSize: isMobile ? 28 : 34,
-                            lineHeight: 0.95,
-                            color: "#F8FAFC",
-                          }}
-                        >
-                          {task.progress}%
-                        </div>
-                        <div
-                          style={{
-                            marginTop: 6,
-                            color: tone.text,
+                            marginBottom: 12,
+                            color: colors.cyan2,
                             fontSize: 11,
-                            fontWeight: 700,
+                            fontWeight: 800,
                             textTransform: "uppercase",
                             letterSpacing: "0.12em",
                           }}
                         >
-                          completion
+                          Completed milestones
                         </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "grid", gap: 10 }}>
-                      <div
-                        style={{
-                          width: "100%",
-	                          height: 8,
-                          borderRadius: 999,
-                          overflow: "hidden",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          background: "rgba(255,255,255,0.05)",
-                        }}
-                      >
-                        <div
+                        <ul
                           style={{
-                            width: `${task.progress}%`,
-                            height: "100%",
-                            borderRadius: 999,
-                            background: `linear-gradient(90deg, ${tone.accent} 0%, rgba(168, 143, 255, 0.88) 100%)`,
-                            boxShadow: `0 0 20px ${tone.glow}`,
+                            margin: 0,
+                            padding: 0,
+                            listStyle: "none",
+                            display: "grid",
+                            gap: 8,
                           }}
-                        />
+                        >
+                          {completedMilestones.map((milestone) => (
+                            <li
+                              key={milestone}
+                              style={{
+                                position: "relative",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                                minHeight: 42,
+                                padding: "9px 11px 9px 13px",
+                                borderRadius: 13,
+                                border: "1px solid rgba(95, 169, 232, 0.20)",
+                                background: "rgb(5, 13, 31)",
+                                backgroundColor: "rgb(5, 13, 31)",
+                                backgroundImage: "none",
+                                opacity: 1,
+                                boxShadow:
+                                  "0 10px 20px rgba(2, 6, 23, 0.28), inset 0 1px 0 rgba(255,255,255,0.06)",
+                                color: "#F8FAFC",
+                                fontSize: 14,
+                                fontWeight: 750,
+                                lineHeight: 1.35,
+                                overflow: "hidden",
+                              }}
+                            >
+                              <span
+                                aria-hidden="true"
+                                style={{
+                                  position: "absolute",
+                                  inset: "0 auto 0 0",
+                                  width: 3,
+                                  background:
+                                    "linear-gradient(180deg, rgba(95, 169, 232, 1) 0%, rgba(52, 211, 153, 0.90) 100%)",
+                                  boxShadow: "0 0 16px rgba(95, 169, 232, 0.56)",
+                                }}
+                              />
+                              <span
+                                aria-hidden="true"
+                                style={{
+                                  width: 22,
+                                  height: 22,
+                                  borderRadius: 999,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  background: "rgb(9, 27, 58)",
+                                  backgroundColor: "rgb(9, 27, 58)",
+                                  color: colors.cyan2,
+                                  boxShadow:
+                                    "0 0 16px rgba(95, 169, 232, 0.38), inset 0 0 0 1px rgba(95, 169, 232, 0.28)",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <CheckCircle2 size={14} />
+                              </span>
+                              <span style={{ position: "relative", zIndex: 1 }}>{milestone}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: 12,
-                          flexWrap: "wrap",
-                          color: "rgba(224, 228, 233, 0.58)",
-                          fontSize: 12,
-                        }}
-                      >
-	                        <span>Progress</span>
-	                        <span>{task.progress === 100 ? "Complete" : "In progress"}</span>
-                      </div>
-                    </div>
+                    ) : null}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </Card>
 

@@ -43,9 +43,16 @@ export const siteData = {
     ],
     subtitle:
       "A connected assistive vest that senses the environment, guides movement through haptic feedback, and links critical status to NaviCare monitoring.",
+    resources: {
+      pitchDeckUrl: "showcase/navisense-pitch-deck.pdf",
+      posterUrl: "showcase/navisense-poster.pdf",
+      videoUrl: "https://www.youtube.com/watch?v=8SJ3yxZUUkA",
+      appPreviewImage: "showcase/mobile-app-preview-pre.png",
+      navicarePreviewImage: "showcase/navicare-preview.png",
+    },
     email: "navisense.2026@gmail.com",
     linkedin: "",
-    acknowledgements: "Instituto Superior Tecnico - Student Innovation Project",
+    acknowledgements: "Instituto Superior Técnico - Student Innovation Project",
   },
   nav: ["About", "How it works", "Tracker", "Partners", "Team", "Blog", "Contact"],
   ecosystem: [
@@ -136,16 +143,18 @@ export const siteData = {
   ],
   partners: [
     {
-      name: "Instituto Superior Tecnico",
+      name: "Instituto Superior Técnico",
       type: "Institutional Partner",
       desc: "Academic context, project structure, and presentation support for the development path.",
       logo: "IST",
+      logoPath: "showcase/sponsors/ist.png",
     },
     {
-      name: "Bengala Magica",
+      name: "Bengala Mágica",
       type: "Technical Partner",
       desc: "Accessibility-focused perspective and feedback grounded in real mobility needs.",
       logo: "BM",
+      logoPath: "showcase/sponsors/bengala-magica.png",
     },
   ],
   updates: [
@@ -158,6 +167,7 @@ export const siteData = {
       content:
         "This first stage helped transform the initial NAVISense concept into a more concrete development plan. We met as a team to discuss what the project could become, sketching the first ideas for the prototype and identifying which functionalities mattered most.\n\nWe also discussed how those ideas could be achieved with the technology available to us, from sensors and communication links to the general structure of the system. Roles were assigned to each team member, but we agreed that the project should remain collaborative, with everyone able to contribute beyond their assigned area.\n\nBeyond the functional side, we also started defining how NAVISense should be presented. We identified the pitch deck, website, and poster as key communication materials, and agreed that they should share the same visual identity so the project would feel coherent both technically and visually.",
       author: "Team NAVISense",
+      imagePath: null,
       reportPdfUrl: "reports/hello-world-brainstorming.pdf",
       reportAvailable: true,
     },
@@ -170,6 +180,7 @@ export const siteData = {
       content:
         "With the first concept defined, we started organizing the next development steps around key milestones, including prototype work, testing, website and dashboard development, and proposal preparation. This gave the project a clearer rhythm: each team member now had more concrete tasks and objectives, helping us connect technical planning with communication, outreach, and documentation.",
       author: "Francisco",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -182,6 +193,7 @@ export const siteData = {
       content:
         "The proposal submission brought together the research carried out by the group and turned it into a more structured project direction. While preparing it, we revisited some aspects of the initial idea and refined the objectives so they better matched the work we wanted to develop. This helped us define clearer technical goals, prototype constraints, and possible design paths for the following stages.",
       author: "Tiago",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -194,18 +206,20 @@ export const siteData = {
       content:
         "The website launch created a public space for NAVISense, bringing together the project presentation, team information, blog updates, and access to the project proposal. At this stage, the website was still in an early version: a bit rushed visually, but already functional for the basic needs of the project.\n\nBesides presenting the project, the website also gave us a way to monitor public interest through Google Analytics, helping us understand the visit flow and how people were reaching the page. We also discussed that, in the future, the website could become more than a landing page. It could act as a functional node in the NAVISense system, connecting the public presentation of the project with real system data and monitoring features.",
       author: "Daniel",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
     {
-      title: "Bengala Magica Partnership Initiated",
+      title: "Bengala Mágica Partnership Initiated",
       date: "2026-03-14",
       category: "Partnerships",
       summary:
-        "The team had a meeting with Bengala Magica, during which we received valuable feedback and suggestions that helped us further improve and refine our prototype.",
+        "The team had a meeting with Bengala Mágica, during which we received valuable feedback and suggestions that helped us further improve and refine our prototype.",
       content:
-        "The discussion with Bengala Magica brought an accessibility-focused perspective into the project. Their feedback was especially important because it showed us that our initial direction needed to change. At first, we imagined NAVISense as a possible replacement for existing solutions used by visually impaired people, assuming that many alternatives were avoided mainly because they were too expensive.\n\nDuring the discussion, we understood that the issue was more complex. Similar products were often rejected not only because of cost, but because they were not practical enough for everyday use. Even with advanced features, they could not fully replace the simplicity, reliability, and familiarity of a cane.\n\nThis led us to an important conclusion: NAVISense should not try to replace existing tools, but work as an additional support system. From that point on, we started thinking of the vest as something that could complement the user's current navigation methods rather than compete with them.",
+        "The discussion with Bengala Mágica brought an accessibility-focused perspective into the project. Their feedback was especially important because it showed us that our initial direction needed to change. At first, we imagined NAVISense as a possible replacement for existing solutions used by visually impaired people, assuming that many alternatives were avoided mainly because they were too expensive.\n\nDuring the discussion, we understood that the issue was more complex. Similar products were often rejected not only because of cost, but because they were not practical enough for everyday use. Even with advanced features, they could not fully replace the simplicity, reliability, and familiarity of a cane.\n\nThis led us to an important conclusion: NAVISense should not try to replace existing tools, but work as an additional support system. From that point on, we started thinking of the vest as something that could complement the user's current navigation methods rather than compete with them.",
       author: "Francisco",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -218,6 +232,7 @@ export const siteData = {
       content:
         "This first mobile app version marked an important step in the communication flow between the vest and the rest of the system. It established the base for sending data from the NAVISense Vest to other connected devices and services.\n\nAt this stage, our understanding of what the app should monitor was still evolving, but we were already certain that location and biometric data would be essential. These features could support faster response from an assisting person or team, both for users who may require direct help and for performance-focused contexts such as firefighters or other emergency workers.\n\nMe and Daniel also discussed the possibility of connecting the app to the website in the future, creating a clearer communication path between the user and the monitoring side of the system. We agreed that the app should be operated by the vest user, while monitoring should remain inherently remote.",
       author: "Frederico",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -230,6 +245,7 @@ export const siteData = {
       content:
         "By closing the materials selection and Bill of Materials, we established the main hardware requirements for the prototype. This helped align sensor choice, vest design, and upcoming construction work.\n\nOur main goal was to find a balance between quality, reliability, and cost. Even though we had learned that cost was not the only reason similar solutions struggled to be adopted, we still believed that NAVISense should remain as accessible as possible. For us, the prototype needed to be technically useful without becoming a product that only a small group of people could realistically afford.",
       author: "Raquel",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -242,6 +258,7 @@ export const siteData = {
       content:
         "The intermediate presentation was used to communicate the project's progress, explain the decisions already made, and organize the next phase of work. During its preparation, we reviewed what still needed to be improved before moving into the final development stage, especially as the first materials were close to arriving.\n\nThis was also an important management moment for us. Since efficient prototype development depends on timing, coordination, and clear priorities, preparing the presentation helped us better understand what needed to be ready before construction could properly begin.",
       author: "Tiago",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -254,6 +271,7 @@ export const siteData = {
       content:
         "This update marked a major change in the website's structure and development approach. Instead of continuing with Hugo, we decided to rebuild the website using Vite, which gave us more freedom to shape the interface, animations, components, and future integrations with the rest of the NAVISense system.\n\nThe main reason for this transition was that the website was no longer meant to be only a static project page. As our ideas evolved, we needed a more flexible environment where we could quickly test visual changes, adjust the layout, and develop interactive elements without feeling limited by the structure of the platform. Vite also made the development process smoother, allowing us to see changes almost immediately while working, instead of constantly rebuilding the application.",
       author: "Daniel",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -266,6 +284,7 @@ export const siteData = {
       content:
         "Receiving the first components allowed the team to move from planning into physical construction. This stage began the practical integration of the selected materials, electronics, and vest structure.\n\nAlthough not all expected materials had arrived yet, this did not stop us from starting the basic elements needed for future vest construction and integration. Even with partial resources, the team was able to begin testing how the first components could fit into the physical structure of the prototype.",
       author: "Francisco",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -278,6 +297,7 @@ export const siteData = {
       content:
         "This presentation gave the team another opportunity to explain NAVISense, share the current prototype progress, and receive reactions from peers working on other projects. It also allowed us to compare our approach with other teams, discuss the choices and solutions we had made, and gather new ideas for future improvements.",
       author: "Tiago",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -290,6 +310,7 @@ export const siteData = {
       content:
         "This integration connected several important technical layers of the system: local Bluetooth communication, 4G connectivity, and database support. Together, these elements allowed the prototype to move data through the NAVISense ecosystem more reliably.\n\nThe next logical step was to connect the website to this ecosystem as well. Our goal was for the website to read from the shared database, allowing it to display relevant information from the system and become part of the communication flow rather than remaining only a presentation page.",
       author: "Francisco and Frederico",
+      imagePath: null,
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
@@ -302,27 +323,64 @@ export const siteData = {
       content:
         "NaviCare expanded the website beyond a project presentation platform by connecting it to the system's live data flow. This work created the base for monitoring vest status, location, and connectivity through the website, helping bridge the prototype, mobile app, database, and dashboard into one functional ecosystem.",
       author: "Daniel and Frederico",
+      imagePath: null,
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
+    },
+    {
+      title: "First Prototype version",
+      date: "2026-05-22",
+      category: "Prototype",
+      summary:
+        "The team completed the final version of the prototype, integrating the hardware, sensors, communication modules, and software features into a functional system.",
+      content:
+        "The team completed the final version of the prototype, successfully integrating the hardware, sensors, communication modules, and software features into a functional system. We are happy to announce that the development phase of the prototype is now complete, with all the main specifications defined at the beginning of the project successfully implemented. With the technical development concluded, the remaining work is focused on the media and presentation aspects of the project, including the final poster, pitch deck, and presentation video.",
+      author: "Engineering Team",
+      imagePath: "blog-updates/11-first-prototype-version.png",
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
+    },
+    {
+      title: "Poster Finalization",
+      date: "2026-05-29",
+      category: "Design",
+      summary:
+        "The team finalized the project poster, organizing the key information, visuals, prototype features, and final results into a clear and presentable format.",
+      content:
+        "We finalized the project poster, organizing the key information, visuals, prototype features, and final results into a clear and presentable format. The main objective was to effectively communicate the problem we aim to solve, the key components of the system, the prototype’s main functionalities, the project team, and our sponsors. We also designed the poster to remain consistent with the visual identity developed across the different parts of the project, as we believe this is a key element of our final presentation.",
+      author: "Tiago",
+      imagePath: "blog-updates/12-poster-finalization.png",
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
+    },
+    {
+      title: "Pitch Deck Finalization",
+      date: "2026-06-01",
+      category: "Presentation",
+      summary:
+        "The team completed the final pitch deck, summarizing the problem, solution, prototype, market relevance, technical implementation, and final project outcomes.",
+      content:
+        "The team completed the final pitch deck, bringing together the main aspects of the project in a clear and structured presentation. It summarizes the problem we aim to address, our proposed solution, the developed prototype, its technical implementation, and the relevance of the project in a real-world context. The pitch deck also highlights the final outcomes of the project and presents the overall progress achieved throughout its development.",
+      author: "Tiago",
+      imagePath: "blog-updates/13-pitch-deck-finalization.png",
+      reportPdfUrl: "reports/PIC_reports.pdf",
+      reportAvailable: true,
+    },
+    {
+      title: "Video Finalization",
+      date: "2026-06-05",
+      category: "Presentation",
+      summary:
+        "The team finalized the project video, including the prototype demonstration, main functionalities, use-case explanation, and final editing.",
+      content:
+        "We finnished the project video, which presents the problem we aim to solve with our prototype and demonstrates how our solution can be applied in a practical use case. The video includes a prototype demonstration, an explanation of the main functionalities, and an overview of the system’s structure, technologies, and overall ecosystem.",
+      author: "David",
+      imagePath: "blog-updates/14-video-finalization.png",
       reportPdfUrl: "reports/PIC_reports.pdf",
       reportAvailable: true,
     },
   ],
   tracker: [
-    {
-      title: "Website and Blog Launch",
-      owner: "Daniel",
-      priority: "Medium",
-      status: "Done",
-      due: "2026-02-15",
-      progress: 100,
-    },
-    {
-      title: "Prototype Materials List",
-      owner: "Team",
-      priority: "High",
-      status: "Done",
-      due: "2026-03-01",
-      progress: 100,
-    },
     {
       title: "Prototype Development",
       owner: "Engineering",
@@ -332,28 +390,44 @@ export const siteData = {
       progress: 100,
     },
     {
+      title: "Website Development",
+      owner: "Daniel",
+      priority: "Medium",
+      status: "Done",
+      due: "2026-05-12",
+      progress: 100,
+    },
+    {
       title: "Prototype Testing",
       owner: "Validation",
       priority: "High",
-      status: "In Progress",
+      status: "Done",
       due: "2026-05-24",
-      progress: 72,
+      progress: 100,
     },
     {
       title: "Poster Design",
       owner: "Tiago",
       priority: "Medium",
-      status: "In Progress",
+      status: "Done",
       due: "2026-05-24",
-      progress: 55,
+      progress: 100,
     },
     {
       title: "Demonstration Video",
       owner: "David",
       priority: "Medium",
-      status: "In Progress",
+      status: "Done",
       due: "2026-05-31",
-      progress: 42,
+      progress: 100,
+    },
+    {
+      title: "Dashboard Development",
+      owner: "Daniel and Frederico",
+      priority: "High",
+      status: "Done",
+      due: "2026-06-12",
+      progress: 100,
     },
   ],
   roadmap: [
@@ -375,15 +449,15 @@ export const siteData = {
       phase: "Phase 03",
       title: "Validate",
       period: "May",
-      state: "current",
-      desc: "Prototype testing, latency measurements, reliability checks, and system refinement.",
+      state: "complete",
+      desc: "Prototype testing, latency measurements, reliability checks, and system refinement completed.",
     },
     {
       phase: "Phase 04",
       title: "Showcase",
       period: "Late May-June",
-      state: "upcoming",
-      desc: "Poster, demonstration video, final validation, and public presentation.",
+      state: "complete",
+      desc: "Poster, demonstration video, dashboard, and final presentation assets completed.",
     },
   ],
   team: [

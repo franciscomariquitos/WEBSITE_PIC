@@ -554,8 +554,9 @@ heroVestNode: {
 
 heroVisualLabel: {
   color: colors.cyan2,
-  fontSize: 11,
+  fontSize: 13,
   fontWeight: 800,
+  lineHeight: 1,
   textTransform: "uppercase",
   letterSpacing: "0.14em",
 },
