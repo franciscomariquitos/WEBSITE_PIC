@@ -545,10 +545,11 @@ function PrototypePreviewPanel({
                 loading="eager"
                 decoding="async"
                 style={{
+                  display: isMobile ? "none" : "block",
                   position: "absolute",
-                  left: isMobile ? 18 : 24,
-                  top: isMobile ? 18 : 20,
-                  width: isMobile ? 86 : 112,
+                  left: 24,
+                  top: 20,
+                  width: 112,
                   height: "auto",
                   filter: "drop-shadow(0 0 18px rgba(95, 169, 232, 0.24))",
                 }}
@@ -559,6 +560,7 @@ function PrototypePreviewPanel({
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
                 style={{
+                  display: isMobile ? "none" : "block",
                   position: "absolute",
                   inset: 0,
                   width: "100%",
@@ -664,10 +666,10 @@ function PrototypePreviewPanel({
                 ref={boxPanelRef}
                 style={{
                   position: "absolute",
-                  left: `${panelLayout.panelLeft}%`,
-                  right: `${100 - panelLayout.panelRight}%`,
-                  top: `${panelLayout.panelTop}%`,
-                  bottom: `${100 - panelLayout.panelBottom}%`,
+                  left: isMobile ? 0 : `${panelLayout.panelLeft}%`,
+                  right: isMobile ? 0 : `${100 - panelLayout.panelRight}%`,
+                  top: isMobile ? 0 : `${panelLayout.panelTop}%`,
+                  bottom: isMobile ? 0 : `${100 - panelLayout.panelBottom}%`,
                   borderRadius: 22,
                   border: "1px solid rgba(95, 169, 232, 0.14)",
                   background:
